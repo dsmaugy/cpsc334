@@ -2,3 +2,6 @@
 	path = module1
 	url = git@github.com:dsmaugy/cpsc334-module1.git
 	branch = main
+[submodule "module1-revised"]
+	path = module1-revised
+	url = git@github.com:dsmaugy/cpsc334-module-revised.git
