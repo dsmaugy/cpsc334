@@ -1,0 +1,13 @@
+[Unit]
+Description=Pi IP PrintI
+After=systemd-networkd-wait-online.service
+Wants=systemd-networkd-wait-online.service
+
+[Service] 
+ExecStartPre=/bin/sh -c 'until ping -c1 google.com; do sleep 1; done;'
+ExecStart=/home/student334/cpsc334/raspberrypi/ip_print.sh
+User=student334
+Group=student334
+
+[Install]
+WantedBy=multi-user.target
