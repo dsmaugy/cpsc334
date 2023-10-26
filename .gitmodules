@@ -9,3 +9,7 @@
 [submodule "module2"]
 	path = module2
 	url = git@github.com:dsmaugy/cpsc334-module2.git
+
+[submodule "module3"]
+        path = module3
+        url = git@github.com:dsmaugy/cpsc334-module3.git
