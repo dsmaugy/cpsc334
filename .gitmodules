@@ -12,4 +12,8 @@
 
 [submodule "module3"]
         path = module3
-        url = git@github.com:dsmaugy/cpsc334-module3.git
+	url = git@github.com:dsmaugy/cpsc334-module3.git
+	branch = main
+[submodule "module4"]
+        path = module4
+        url = git@github.com:dsmaugy/cpsc334-module4.git
