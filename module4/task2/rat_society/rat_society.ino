@@ -28,6 +28,8 @@ int spinnerSpeed = 10;
 char apiEndpoint[256];
 StaticJsonDocument<512> responseJson;
 
+WiFiServer server(8888);
+
 void setup(){
 
   Serial.begin(9600);
@@ -41,12 +43,21 @@ void setup(){
   Serial.println();
   Serial.println(WiFi.localIP());
 
+  server.begin();
   Serial.println(getStockChange("AAPL"));
 }
 
 void loop(){
   spinner.setSpeed(spinnerSpeed);
+  WiFiClient client = server.available();
   
+  if (client) {
+    while (client.connected()) {
+      if (client.available()) {
+        String controllerReq = client.readStringUntil("\n");
+      }
+    }
+  }
   // Serial.println(apiEndpoint);
 }
 
