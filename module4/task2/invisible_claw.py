@@ -1,5 +1,6 @@
 import pygame
 import socket
+import threading
 
 from typing import List
 from perlin_noise import PerlinNoise
@@ -7,9 +8,12 @@ from perlin_noise import PerlinNoise
 FULLSCREEN = False
 
 # Wireless initialization
-ESP32_ADDR = ("192.168.0.137", 6101)
+ESP32_ADDR = ("172.29.133.143", 8888)
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-# client_socket.connect(ESP32_ADDR)
+client_socket.connect(ESP32_ADDR)
+def send_to_esp32(msg: str):
+    client_socket.send(f"{msg}\n".encode())
+
 
 pygame.init()
 
@@ -23,12 +27,13 @@ else:
     screen_flags = 0
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT), screen_flags)
-pygame.display.set_caption("The Invisible Hand")
+pygame.display.set_caption("The S&Cheese 500")
 
 clock = pygame.time.Clock()
 running = True
 
 faucet_img = pygame.transform.scale_by(pygame.image.load("resources/faucet.png"), 0.25)
+cfpb_img = pygame.transform.scale_by(pygame.image.load("resources/cfpb.png"), 0.5)
 
 class Button:
     def __init__(self, x, y, width, height, text, callback, color=(1, 129, 129), text_color=(255, 255, 255), alt_text=""):
@@ -85,12 +90,13 @@ class TextBox(Button):
 class Money:
     WIDTH = 64
     HEIGHT = 64
-    IMG = pygame.transform.scale(pygame.image.load("resources/money.png"), (WIDTH, HEIGHT))
+    IMG = pygame.transform.scale(pygame.image.load("resources/cheese.png"), (WIDTH, HEIGHT))
 
     def __init__(self, x, y):
         self._x = x
         self._y = y
         self._fall_rate = 1
+        self.rect = None
         
     def update_money(self):
         self._y += self._fall_rate
@@ -98,7 +104,7 @@ class Money:
 
     def draw(self):
         self.update_money()
-        screen.blit(Money.IMG, (self._x, self._y))
+        self.rect = screen.blit(Money.IMG, (self._x, self._y))
 
     def out_of_bounds(self):
         return self._y - 64 > HEIGHT
@@ -114,19 +120,22 @@ def get_text_offset(coords, text, font):
     return (coords[0] - font_size[0]//2 , coords[1] - font_size[1]//2)
 
 description_text = ""
+cfpb_fund_sec = 0
+defunded_sent = False
 
 def fund_cfpb():
-    pass
+    global cfpb_fund_sec
+    cfpb_fund_sec += 10
+    send_to_esp32("FUND")
 
 def update_stock(new_ticker: str):
     global description_text
     description_text = f"Current Stock: {new_ticker}"
+    send_to_esp32(f"STOCK {new_ticker}")
 
 
-
-cfpb_button = Button((WIDTH*5//6)- 300, HEIGHT*5//6, 300, 50, "Fund CFPB", fund_cfpb, alt_text="Start recording new soundscape with junglebox")
-title_text = "The Invisible Hand"
-title_text_emoji = "🤑"
+title_text = "The S&Cheese 500"
+fund_text = "Consumer Financial Protection Bureau funded for: "
 stock_input = TextBox((WIDTH//2) - 150, HEIGHT*5//6, 300, 36)
 
 clickable_elements = [stock_input]
@@ -153,7 +162,6 @@ while running:
                         break
                 
                 if background_clicked:
-                    print(event)
                     money_list.append(Money(event.pos[0]-Money.WIDTH//2, event.pos[1]-Money.HEIGHT//2))
             
         elif event.type == pygame.MOUSEMOTION:
@@ -177,30 +185,42 @@ while running:
                 stock_input.backspace()
             else:
                 cap = event.unicode.upper()
-                if ord(cap) >= ord('A') and ord(cap) <= ord('Z'):
-                    print(event)
+                if len(cap) > 0 and ord(cap) >= ord('A') and ord(cap) <= ord('Z'):
                     stock_input.add_to_textbox(event.unicode)
 
     screen.fill((1, 129, 129))
     # screen.blit(bg_img, (0, 0))
+
+    if cfpb_fund_sec > 0:
+        fund_text = f"Consumer Financial Protection Bureau funded for: {round(cfpb_fund_sec)} seconds."
+    else:
+        fund_text = "Consumer Financial Protection Bureau defunded. No more protections!"
     
-    # Define font and text content
-    font = pygame.font.SysFont("SourceCodePro-Black.otf", 72)
+    title_font = pygame.font.SysFont("SourceCodePro-Black.otf", 72)
+    desc_font = pygame.font.SysFont("SourceCodePro-Black.otf", 60)
+    fund_font = pygame.font.SysFont("SourceCodePro-Black.otf", 24)
     
     # Draw the text element on the screen
-    title_text_pos = get_text_offset((WIDTH//2, HEIGHT*1//5), title_text, font)
-    description_text_pos = get_text_offset((WIDTH//2, HEIGHT*4//6), description_text, font)
-    draw_text(title_text, font, (223, 223, 96), title_text_pos[0], title_text_pos[1])
-    draw_text(description_text, font, (192, 192, 192), description_text_pos[0], description_text_pos[1])
-    
-    # draw UI elements
-    cfpb_button.draw()
-    stock_input.draw()
+    title_text_pos = get_text_offset((WIDTH//2, HEIGHT*1//5), title_text, title_font)
+    description_text_pos = get_text_offset((WIDTH//2, HEIGHT*4//6), description_text, desc_font)
+    fund_text_pos = get_text_offset((WIDTH//2, HEIGHT*4.7//6), fund_text, fund_font)
 
+    draw_text(title_text, title_font, (223, 223, 96), title_text_pos[0], title_text_pos[1])
+    draw_text(description_text, desc_font, (192, 192, 192), description_text_pos[0], description_text_pos[1])
+    draw_text(fund_text, fund_font, (255, 255, 255), fund_text_pos[0], fund_text_pos[1])
+
+    # draw UI elements
+    stock_input.draw()
+    cfpb_surface = screen.blit(cfpb_img, (WIDTH*5//6, stock_input.rect.y))
+    
     # draw money animations
     for elem in money_list:
         if not elem.out_of_bounds():
-            elem.draw()
+            if elem.rect and cfpb_surface.colliderect(elem.rect):
+                money_list.remove(elem)
+                fund_cfpb()
+            else:
+                elem.draw()
         else:
             money_list.remove(elem)
 
@@ -213,8 +233,15 @@ while running:
         # print(abs(noise(pygame.time.get_ticks()/10000)))
 
     pygame.display.flip()
-
     clock.tick(60)
+
+    if cfpb_fund_sec > 0:
+        defunded_sent = False
+        cfpb_fund_sec -= (clock.get_time() / 1000)
+    else:
+        if not defunded_sent:
+            defunded_sent = True
+            send_to_esp32("DEFUND")
 
 pygame.quit()
 client_socket.close()

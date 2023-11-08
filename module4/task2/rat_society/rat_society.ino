@@ -22,6 +22,7 @@
 #define SERVO 26
 #define stepsPerRevolution 2048
 
+
 Stepper spinner(stepsPerRevolution, IN1, IN3, IN2, IN4);
 int spinnerSpeed = 10;
 
@@ -30,9 +31,14 @@ StaticJsonDocument<512> responseJson;
 
 WiFiServer server(8888);
 
+String currentStock = "CAKE";
+float currentStockDelta = 0;
+bool cfpb_funded = false;
+
 void setup(){
 
   Serial.begin(9600);
+  Serial.println("Serial start");
   WiFi.mode(WIFI_STA);
   WiFi.begin(SSID, WIFI_PASS);
 
@@ -48,28 +54,44 @@ void setup(){
 }
 
 void loop(){
+  unsigned long start = millis();
   spinner.setSpeed(spinnerSpeed);
   WiFiClient client = server.available();
   
   if (client) {
     while (client.connected()) {
       if (client.available()) {
-        String controllerReq = client.readStringUntil("\n");
+        String controllerReq = client.readStringUntil('\n');
+        Serial.println("New Message: " + controllerReq);
+
+        if (controllerReq.equals("FUND")) {
+          cfpb_funded = true;
+          Serial.println("CFPB Funded");
+        } else if (controllerReq.equals("DEFUND")) {
+          Serial.println("CFPB Defunded");
+          cfpb_funded = false;
+        } else if (controllerReq.startsWith("STOCK")) {
+          currentStock = controllerReq.substring(6);
+          currentStockDelta = getStockChange(currentStock.c_str());
+          Serial.printf("New STOCK Delta: %f\n", currentStockDelta);
+        }
       }
+
+
+      // main loop here
     }
   }
-  // Serial.println(apiEndpoint);
 }
 
-float getStockChange(char* tickerVal) {
+float getStockChange(const char* tickerVal) {
   HTTPClient http;
   sprintf(apiEndpoint, STOCK_API_FORMAT, tickerVal, API_KEY);
   http.begin(apiEndpoint);
-  // int requestStatus = http.GET();
-  int requestStatus = 5;
+  int requestStatus = http.GET();
+  // int requestStatus = 5;
   if (requestStatus > 0) {
-    // String payload = http.getString();
-    String payload = TEST_JSON;
+    String payload = http.getString();
+    // String payload = TEST_JSON;
     Serial.println(payload);
     DeserializationError err = deserializeJson(responseJson, payload);
     if (err) {
