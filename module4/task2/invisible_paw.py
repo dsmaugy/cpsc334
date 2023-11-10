@@ -8,7 +8,7 @@ from perlin_noise import PerlinNoise
 FULLSCREEN = False
 
 # Wireless initialization
-ESP32_ADDR = ("172.29.133.143", 8888)
+ESP32_ADDR = ("192.168.0.137", 8888)
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client_socket.connect(ESP32_ADDR)
 def send_to_esp32(msg: str):
@@ -119,7 +119,7 @@ def get_text_offset(coords, text, font):
     font_size = font.size(text)
     return (coords[0] - font_size[0]//2 , coords[1] - font_size[1]//2)
 
-description_text = ""
+description_text = "Current Stock: CAKE"
 cfpb_fund_sec = 0
 defunded_sent = False
 
@@ -144,7 +144,7 @@ money_list: List[Money] = []
 noise = PerlinNoise(10.23)
 
 # initialize program to cheesecake factory
-update_stock("CAKE")
+#update_stock("CAKE")
 
 print("Starting pygame interface")
 while running:

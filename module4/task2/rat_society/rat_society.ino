@@ -45,7 +45,7 @@ StaticJsonDocument<512> responseJson;
 
 WiFiServer server(8888);
 
-String currentStock = "CAKE";
+String currentStock;
 float stockDeltaPct = 0;
 bool cfpb_funded = false;
 
@@ -69,9 +69,12 @@ void setup(){
   knife.write(KNIFE_UP);
   knife_down = false;
   last_knife_transition = millis();
+  knife_cooldown = 100;
   
   server.begin();
   // Serial.println(getStockChange("AAPL"));
+  // currentStock = "CAKE";
+  // stockDeltaPct = getStockChange(currentStock.c_str());
 }
 
 void loop(){
@@ -105,7 +108,7 @@ void loop(){
 }
 
 void actuatorControl() {
-  Serial.println(analogRead(PHOTO));
+  // Serial.println(analogRead(PHOTO));
   // Serial.println(knife.read());
   int light = analogRead(PHOTO);
   if (light > 100) {
@@ -114,24 +117,26 @@ void actuatorControl() {
 
     if (!cfpb_funded && stockDeltaPct < 0) {
       if (knife_down && millis() - last_knife_transition > KNIFE_DURATION) {
-        knife_up();
+        swing_knife_up();
       } else if (!knife_down && millis() - last_knife_transition > knife_cooldown) {
-        knife_down();
-        knife_cooldown = random(50, map(stockDeltaPct, -1, 0, 50, 3000));
+        swing_knife_down();
+        int cooldown_range = max((int) map(stockDeltaPct*100, -60, 0, 20, 500), 20);
+        knife_cooldown = random(cooldown_range, cooldown_range + 50);
+        Serial.printf("New Cooldown: %d\n", knife_cooldown);
       }
     } else {
-      knife_up();
+      swing_knife_up();
     }
   }
 }
 
-void knife_down() {
+void swing_knife_down() {
   knife.write(KNIFE_DOWN);
   knife_down = true;
   last_knife_transition = millis();
 }
 
-void knife_up() {
+void swing_knife_up() {
   knife.write(KNIFE_UP);
   knife_down = false;
   last_knife_transition = millis();
@@ -141,16 +146,16 @@ float getStockChange(const char* tickerVal) {
   HTTPClient http;
   sprintf(apiEndpoint, STOCK_API_FORMAT, tickerVal, API_KEY);
   http.begin(apiEndpoint);
-  // int requestStatus = http.GET();
-  int requestStatus = 5;
+  int requestStatus = http.GET();
+  // int requestStatus = 5;
   if (requestStatus > 0) {
-    // String payload = http.getString();
-    String payload = TEST_JSON;
+    String payload = http.getString();
+    // String payload = TEST_JSON;
     Serial.println(payload);
     DeserializationError err = deserializeJson(responseJson, payload);
     if (err) {
       return 0.0;
-    } else {
+    } else if (responseJson["resultsCount"] > 0){
       double open = responseJson["results"][0]["o"];
       double close = responseJson["results"][0]["c"];
       return (close - open)/open;
