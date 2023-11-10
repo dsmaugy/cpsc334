@@ -20,6 +20,9 @@
 #define IN3 5
 #define IN4 17
 #define stepsPerRevolution 2048
+#define KNIFE_UP 0
+#define KNIFE_DOWN 20
+#define KNIFE_DURATION 100
 
 /*
 WARNING, CANNOT USE ADC PINS:
@@ -27,9 +30,12 @@ GPIO4, GPIO0, GPIO2, GPIO15, GPIO13, GPIO12, GPIO14, GPIO27, GPIO25 and GPIO26
 WHEN WIFI IS ENABLED!!!
 */
 #define PHOTO 34
-#define SERVO 26
+#define SERVO 23
 
-
+Servo knife;
+long last_knife_transition;
+bool knife_down;
+int knife_cooldown;
 
 Stepper spinner(stepsPerRevolution, IN1, IN3, IN2, IN4);
 int spinnerSpeed = 10;
@@ -40,7 +46,7 @@ StaticJsonDocument<512> responseJson;
 WiFiServer server(8888);
 
 String currentStock = "CAKE";
-float currentStockDelta = 0;
+float stockDeltaPct = 0;
 bool cfpb_funded = false;
 
 void setup(){
@@ -51,6 +57,7 @@ void setup(){
   WiFi.begin(SSID, WIFI_PASS);
 
   pinMode(PHOTO, INPUT);
+  knife.attach(SERVO);
 
   while (WiFi.status() != WL_CONNECTED) {
     Serial.print(".");
@@ -59,6 +66,10 @@ void setup(){
   Serial.println();
   Serial.println(WiFi.localIP());
 
+  knife.write(KNIFE_UP);
+  knife_down = false;
+  last_knife_transition = millis();
+  
   server.begin();
   // Serial.println(getStockChange("AAPL"));
 }
@@ -80,8 +91,8 @@ void loop(){
           cfpb_funded = false;
         } else if (controllerReq.startsWith("STOCK")) {
           currentStock = controllerReq.substring(6);
-          currentStockDelta = getStockChange(currentStock.c_str());
-          Serial.printf("New STOCK Delta: %f\n", currentStockDelta);
+          stockDeltaPct = getStockChange(currentStock.c_str());
+          Serial.printf("New STOCK Delta: %f\n", stockDeltaPct);
         }
       }
 
@@ -95,11 +106,35 @@ void loop(){
 
 void actuatorControl() {
   Serial.println(analogRead(PHOTO));
+  // Serial.println(knife.read());
   int light = analogRead(PHOTO);
   if (light > 100) {
     spinner.setSpeed(map(light, 100, 4095, 4, 12));
-    spinner.step(64);
+    spinner.step(8);
+
+    if (!cfpb_funded && stockDeltaPct < 0) {
+      if (knife_down && millis() - last_knife_transition > KNIFE_DURATION) {
+        knife_up();
+      } else if (!knife_down && millis() - last_knife_transition > knife_cooldown) {
+        knife_down();
+        knife_cooldown = random(50, map(stockDeltaPct, -1, 0, 50, 3000));
+      }
+    } else {
+      knife_up();
+    }
   }
+}
+
+void knife_down() {
+  knife.write(KNIFE_DOWN);
+  knife_down = true;
+  last_knife_transition = millis();
+}
+
+void knife_up() {
+  knife.write(KNIFE_UP);
+  knife_down = false;
+  last_knife_transition = millis();
 }
 
 float getStockChange(const char* tickerVal) {
@@ -118,7 +153,7 @@ float getStockChange(const char* tickerVal) {
     } else {
       double open = responseJson["results"][0]["o"];
       double close = responseJson["results"][0]["c"];
-      return close - open;
+      return (close - open)/open;
     }
   }
 
