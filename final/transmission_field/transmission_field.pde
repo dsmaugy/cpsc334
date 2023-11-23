@@ -1,3 +1,4 @@
+import java.util.TreeSet;
 
 // field/window size
 final int FIELD_WIDTH = 4000;
@@ -13,13 +14,23 @@ int currentPosX, currentPosY;
 
 PImage bgImage;
 
+TreeSet<UIElement> drawnElements = new TreeSet<>((e1, e2) -> e1.z - e2.z);
+
+
 void setup() {
-    size(512, 512);
+    size(512, 512, P2D);
     // fullScreen(P2D);
     MAX_CENTER_X = FIELD_WIDTH - width / 2;
     MAX_CENTER_Y = FIELD_HEIGHT - height / 2;
+
     bgImage = loadImage("background.jpg");
     imageMode(CENTER);
+
+    // drawnElements.add(new Box(30, 30, 1, 160, 160, color(121, 7, 235, 255)));
+    // drawnElements.add(new Box(60, 60, 2, 160, 160, color(120, 7, 5, 255)));
+    // drawnElements.add(new CloseButton(320, 320, 3, 32, 32, () -> println("yippeee")));
+
+    drawIntroScreen();
 }
 
 void draw() {
@@ -34,27 +45,53 @@ void draw() {
     fill(255, 255, 255, 255);
     text("(" + currentPosX + ", " + currentPosY + ")", 0, height-5);
 
-    fill(121, 7, 235, 150);
-    rect(30, 30, 160, 160);
+    for (UIElement e : drawnElements) {
+        e.drawElement();
+    }
 
     moveBackground();
 }
 
+void mouseMoved() {
+    boolean onClickableElement = false;
+
+    for (UIElement e : drawnElements.descendingSet()) {
+        if (e.pointInsideElement(mouseX, mouseY)) {
+
+            if (e.isClickable) {
+                onClickableElement = true;
+            }
+            e.onHover();
+            break;
+        }
+    }
+
+    if (onClickableElement) {
+        cursor(HAND);
+    } else {
+        cursor(ARROW);
+    }
+}
+
+void mousePressed() {
+    for (UIElement e : drawnElements.descendingSet()) {
+        if (e.pointInsideElement(mouseX, mouseY)) {
+            e.onClick();
+            break;
+        }
+    }
+}
 
 void moveBackground() {
     if (mouseX < FIELD_SCROLL_BORDER && currentCenterX-width/2 > SCROLL_SPEED_BASE) {
-        // currentCenterX -= int(SCROLL_SPEED_BASE*((FIELD_SCROLL_BORDER-mouseX)/FIELD_SCROLL_BORDER));
         currentCenterX -= SCROLL_SPEED_BASE;
     } else if (mouseX > width-FIELD_SCROLL_BORDER && currentCenterX + width/2 < FIELD_WIDTH-SCROLL_SPEED_BASE) {
-        // currentCenterX += int(SCROLL_SPEED_BASE*((mouseX - (width - FIELD_SCROLL_BORDER)) / FIELD_SCROLL_BORDER));
         currentCenterX += SCROLL_SPEED_BASE;
     } 
 
     if (mouseY < FIELD_SCROLL_BORDER && currentCenterY-height/2 > SCROLL_SPEED_BASE) {
-        // currentCenterY -= int(SCROLL_SPEED_BASE*((FIELD_SCROLL_BORDER-mouseY)/FIELD_SCROLL_BORDER));
         currentCenterY -= SCROLL_SPEED_BASE;
     } else if (mouseY > height-FIELD_SCROLL_BORDER && currentCenterY+height/2 < FIELD_HEIGHT-SCROLL_SPEED_BASE) {
-        // currentCenterY += int(SCROLL_SPEED_BASE*((mouseY - (height - FIELD_SCROLL_BORDER)) / FIELD_SCROLL_BORDER));
         currentCenterY += SCROLL_SPEED_BASE;
     }
 }
