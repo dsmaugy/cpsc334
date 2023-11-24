@@ -1,18 +1,3 @@
-
-class Star {
-    public int x;
-    public int y;
-    public int height;
-    public int width;
-
-    public Star(int x, int y, int height, int width) {
-        this.x = x;
-        this.y = y;
-        this.height = height;
-        this.width = width;
-    }
-}
-
 abstract class UIElement {
 
     int x, y, z;
@@ -55,9 +40,14 @@ interface CallableAction {
     void doAction();
 }
 
+interface CallabeActionWithMsgBox {
+    void doAction(MessageBox e);
+}
+
 class Box extends UIElement {
     int width, height;
     color boxColor;
+    color boxStroke = -1;
 
     public Box(int x, int y, int z, int width, int height, color boxColor) {
         super(x, y, z, width, height);
@@ -68,7 +58,12 @@ class Box extends UIElement {
 
     public void drawElement() {
         fill(boxColor);
-        noStroke();
+
+        if (boxStroke == -1) {
+            noStroke();
+        } else {
+            stroke(boxStroke);
+        }
         rect(x, y, width, height);
     }
 }
@@ -103,6 +98,10 @@ class MessageBox extends Box {
     int topMargin = 5;
     int leftMargin = 5;
     int xAlign = CENTER;
+    int yAlign = CENTER;
+
+    CallabeActionWithMsgBox hoverAction = null;
+    CallableAction clickAction = null;
 
     public MessageBox(int x, int y, int z, int width, int height, color boxColor, color textColor, String text) {
         super(x, y, z, width, height, boxColor);
@@ -113,7 +112,19 @@ class MessageBox extends Box {
     public void drawElement() {
         super.drawElement();
         fill(textColor);
-        textAlign(xAlign);
-        text(text, x+leftMargin, y+topMargin, width-leftMargin, height-topMargin);
+        textAlign(xAlign, yAlign);
+        text(text, x+leftMargin, y+topMargin, this.width-leftMargin, this.height-topMargin);
+    }
+
+    public void onClick() {
+        if (clickAction != null) {
+            clickAction.doAction();
+        }
+    }
+
+    public void onHover() {
+        if (hoverAction != null) {
+            hoverAction.doAction(this);
+        }
     }
 }

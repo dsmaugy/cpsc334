@@ -42,6 +42,7 @@ void draw() {
 
     // create coordinate text
     textSize(28);
+    textAlign(LEFT, BASELINE);
     fill(255, 255, 255, 255);
     text("(" + currentPosX + ", " + currentPosY + ")", 0, height-5);
 
