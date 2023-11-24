@@ -17,6 +17,7 @@ PImage bgImage;
 PFont startFont;
 
 TreeSet<UIElement> drawnElements = new TreeSet<>((e1, e2) -> e1.z - e2.z);
+ArrayList<Transmission> transmissionList = new ArrayList<>(); // TODO: draw transmissions in order from largest to smallest?
 
 enum State {
     INTRO, NAVIGATE;
@@ -35,6 +36,8 @@ void setup() {
 
     imageMode(CENTER);
     drawIntroScreen();
+
+    transmissionList.add(new Transmission(currentCenterX, currentCenterY, 25));
 }
 
 void draw() {
@@ -47,9 +50,17 @@ void draw() {
     fill(255, 255, 255, 255);
     text("(" + currentPosX + ", " + currentPosY + ")", 0, height-5);
 
+    for (Transmission t : transmissionList) {
+        if (t.transmissionVisible() && !drawnElements.contains(t)) {
+            drawnElements.add(t);
+        }
+    }
+
     for (UIElement e : drawnElements) {
         e.drawElement();
     }
+
+
 
     if (currentState == State.NAVIGATE) {
         moveBackground();

@@ -11,16 +11,19 @@ wai ttill i get my money right
 ooooh
 """;
 
+color accentOne = color(239, 225, 250);
+
 void drawIntroScreen() {
     currentState = State.INTRO;
     MessageBox introBox = new MessageBox(width/5, height/5, 1, 3*width/5, 3*height/5, color(8, 12, 38, 120), color(255, 255, 255), introText);
-    introBox.boxStroke = color(239, 225, 250);
+    introBox.boxStroke = accentOne;
 
     MessageBox closeButton = new MessageBox(introBox.x + 20, introBox.y + introBox.height - 60, 2, introBox.width-40, 50, color(80, 12, 38, 120), color(255, 255, 255), "Proceed...");
     closeButton.isClickable = true;
-    closeButton.boxStroke = color(239, 225, 250);
+    closeButton.boxStroke = accentOne;
     closeButton.hoverAction = (b1) -> {
-        b1.boxColor = color(200, 200, 200, 180);
+        // b1.boxColor = color(200, 200, 200, 180);
+        b1.boxColor = accentOne;
         b1.textColor = color(0, 0, 0);
     };
     closeButton.leaveAction = (b1) -> {

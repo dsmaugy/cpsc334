@@ -31,9 +31,7 @@ abstract class UIElement {
 
     }
 
-    public void drawElement() {
-
-    }
+    abstract public void drawElement();
 
     public void onEnter() {
         hoverIn = true;
@@ -73,11 +71,12 @@ class Box extends UIElement {
 
     public void drawElement() {
         fill(boxColor);
-
+        rectMode(CORNER);
         if (boxStroke == -1) {
             noStroke();
         } else {
             stroke(boxStroke);
+            strokeWeight(4);
         }
         rect(x, y, width, height);
     }
@@ -130,6 +129,7 @@ class MessageBox extends Box {
 
     public void drawElement() {
         super.drawElement();
+        rectMode(CORNER);
         fill(textColor);
         textAlign(xAlign, yAlign);
         textFont(textFont, 28);
@@ -154,6 +154,38 @@ class MessageBox extends Box {
         super.onLeave();
         if (leaveAction != null) {
             leaveAction.doAction(this);
+        }
+    }
+}
+
+class Transmission extends UIElement {
+    int fieldX, fieldY, r;
+
+    // takes in field coords instead of sketch coords
+    public Transmission(int fieldX, int fieldY, int r) {
+        super(0, 0, 0, r*2, r*2); // placeholder x, y coords
+        this.fieldX = fieldX;
+        this.fieldY = fieldY;
+        this.r = r;
+        isClickable = true;
+    }
+
+    public boolean transmissionVisible() {
+        return (fieldX + r > currentCenterX - (width/2) && fieldX - r < currentCenterX + (width/2) 
+        && fieldY + r > currentCenterY - (height/2) && fieldY - r < currentCenterY + (width/2));
+    }
+
+    public void drawElement() {
+        if (transmissionVisible()) {
+            // use corner mode for UIElements
+            x = ((fieldX - currentCenterX) + width/2);
+            y = ((fieldY - currentCenterY) + height/2);
+            
+            ellipseMode(CORNER);
+            noFill();
+            stroke(220, 202, 237);
+            strokeWeight(8);
+            circle(x, y, r*2);
         }
     }
 }
