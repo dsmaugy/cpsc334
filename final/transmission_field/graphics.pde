@@ -111,6 +111,8 @@ class CloseButton extends Box {
 class MessageBox extends Box {
     color textColor;
     String text;
+    PFont textFont = startFont;
+
     int topMargin = 5;
     int leftMargin = 5;
     int xAlign = CENTER;
@@ -130,6 +132,7 @@ class MessageBox extends Box {
         super.drawElement();
         fill(textColor);
         textAlign(xAlign, yAlign);
+        textFont(textFont, 28);
         text(text, x+leftMargin, y+topMargin, this.width-leftMargin, this.height-topMargin);
     }
 

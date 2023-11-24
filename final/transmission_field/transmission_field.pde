@@ -10,12 +10,19 @@ int MAX_CENTER_Y;
 
 int currentCenterX = FIELD_WIDTH / 2;
 int currentCenterY = FIELD_HEIGHT / 2;
-int currentPosX, currentPosY;
+int currentPosX = 0;
+int currentPosY = 0;
 
 PImage bgImage;
+PFont startFont;
 
 TreeSet<UIElement> drawnElements = new TreeSet<>((e1, e2) -> e1.z - e2.z);
 
+enum State {
+    INTRO, NAVIGATE;
+}
+
+State currentState = State.INTRO;
 
 void setup() {
     size(512, 512, P2D);
@@ -23,20 +30,14 @@ void setup() {
     MAX_CENTER_X = FIELD_WIDTH - width / 2;
     MAX_CENTER_Y = FIELD_HEIGHT - height / 2;
 
-    bgImage = loadImage("background.jpg");
+    bgImage = loadImage("resources/background.jpg");
+    startFont = createFont("resources/PressStart2P-Regular.ttf", 32);
+
     imageMode(CENTER);
-
-    // drawnElements.add(new Box(30, 30, 1, 160, 160, color(121, 7, 235, 255)));
-    // drawnElements.add(new Box(60, 60, 2, 160, 160, color(120, 7, 5, 255)));
-    // drawnElements.add(new CloseButton(320, 320, 3, 32, 32, () -> println("yippeee")));
-
     drawIntroScreen();
 }
 
 void draw() {
-    currentPosX = (mouseX - (width/2)) + currentCenterX;
-    currentPosY = (mouseY - (height/2)) + currentCenterY;
-
     // set background starfield in relation to larger canvas
     image(bgImage, (width/2) + ((FIELD_WIDTH/2) - currentCenterX) , (height/2) + ((FIELD_HEIGHT/2) - currentCenterY));
 
@@ -50,7 +51,11 @@ void draw() {
         e.drawElement();
     }
 
-    moveBackground();
+    if (currentState == State.NAVIGATE) {
+        moveBackground();
+        currentPosX = (mouseX - (width/2)) + currentCenterX;
+        currentPosY = (mouseY - (height/2)) + currentCenterY;
+    }
 }
 
 void mouseMoved() {
