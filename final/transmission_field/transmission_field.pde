@@ -62,8 +62,14 @@ void mouseMoved() {
             if (e.isClickable) {
                 onClickableElement = true;
             }
+
+            if (e.hoverJustEntered) {
+                e.onEnter();
+            }
             e.onHover();
             break;
+        } else if (e.hoverIn) {
+            e.onLeave();
         }
     }
 

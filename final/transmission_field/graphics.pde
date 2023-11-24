@@ -5,6 +5,9 @@ abstract class UIElement {
     int boundingHeight = -1;
     boolean isClickable = false;
 
+    boolean hoverJustEntered = false;
+    boolean hoverIn = false;
+
     UIElement(int x, int y, int z) {
         this.x = x;
         this.y = y;
@@ -18,7 +21,10 @@ abstract class UIElement {
     }
 
     public void onHover() {
-
+        if (hoverJustEntered) {
+            hoverJustEntered = false;
+        } 
+        hoverIn = true;
     }
 
     public void onClick() {
@@ -29,6 +35,15 @@ abstract class UIElement {
 
     }
 
+    public void onEnter() {
+        hoverIn = true;
+    }
+
+    public void onLeave() {
+        hoverJustEntered = true;
+        hoverIn = false;
+    }
+
     public boolean pointInsideElement(int x, int y) {
         return (boundingWidth > 0 && boundingHeight > 0 
         && x >= this.x && x <= this.x+boundingWidth
@@ -36,24 +51,24 @@ abstract class UIElement {
     }
 }
 
-interface CallableAction {
-    void doAction();
+interface CallableAction<T> {
+    void doAction(T element);
 }
 
-interface CallabeActionWithMsgBox {
-    void doAction(MessageBox e);
-}
 
 class Box extends UIElement {
     int width, height;
     color boxColor;
     color boxStroke = -1;
+    color hoveredBoxColor;
+    color unhoveredBoxColor;
 
     public Box(int x, int y, int z, int width, int height, color boxColor) {
         super(x, y, z, width, height);
         this.width = width;
         this.height = height;
         this.boxColor = boxColor;
+        this.unhoveredBoxColor = boxColor;
     }
 
     public void drawElement() {
@@ -70,7 +85,7 @@ class Box extends UIElement {
 
 class CloseButton extends Box {
 
-    CallableAction action;
+    CallableAction<CloseButton> action;
 
     public CloseButton(int x, int y, int z, int width, int height, CallableAction action) {
         super(x, y, z, width, height, color(240, 65, 82));
@@ -88,7 +103,8 @@ class CloseButton extends Box {
     }
 
     public void onClick() {
-        action.doAction();
+        super.onClick();
+        action.doAction(this);
     }
 }
 
@@ -98,10 +114,11 @@ class MessageBox extends Box {
     int topMargin = 5;
     int leftMargin = 5;
     int xAlign = CENTER;
-    int yAlign = CENTER;
+    int yAlign = BASELINE;
 
-    CallabeActionWithMsgBox hoverAction = null;
-    CallableAction clickAction = null;
+    CallableAction<MessageBox> hoverAction = null;
+    CallableAction<MessageBox> clickAction = null;
+    CallableAction<MessageBox> leaveAction = null;
 
     public MessageBox(int x, int y, int z, int width, int height, color boxColor, color textColor, String text) {
         super(x, y, z, width, height, boxColor);
@@ -117,14 +134,23 @@ class MessageBox extends Box {
     }
 
     public void onClick() {
+        super.onClick();
         if (clickAction != null) {
-            clickAction.doAction();
+            clickAction.doAction(this);
         }
     }
 
     public void onHover() {
+        super.onHover();
         if (hoverAction != null) {
             hoverAction.doAction(this);
+        }
+    }
+
+    public void onLeave() {
+        super.onLeave();
+        if (leaveAction != null) {
+            leaveAction.doAction(this);
         }
     }
 }

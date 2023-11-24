@@ -16,11 +16,20 @@ void drawIntroScreen() {
     introBox.boxStroke = color(239, 225, 250);
 
     MessageBox closeButton = new MessageBox(introBox.x + 20, introBox.y + introBox.height - 60, 2, introBox.width-40, 50, color(80, 12, 38, 120), color(255, 255, 255), "Proceed...");
+    closeButton.isClickable = true;
     closeButton.boxStroke = color(239, 225, 250);
     closeButton.hoverAction = (b1) -> {
-        b1.boxColor = color(200, 200, 200);
+        b1.boxColor = color(200, 200, 200, 180);
+        b1.textColor = color(0, 0, 0);
     };
-
+    closeButton.leaveAction = (b1) -> {
+        b1.boxColor = color(80, 12, 38, 120);
+        b1.textColor = color(255, 255, 255);
+    };
+    closeButton.clickAction = (b1) -> {
+        drawnElements.clear();
+    };
+    
     drawnElements.add(new Box(0, 0, 0, width, height, color(139, 129, 148, 100)));
     drawnElements.add(introBox);
     drawnElements.add(closeButton);
