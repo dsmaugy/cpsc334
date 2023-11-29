@@ -13,11 +13,16 @@ int currentCenterY = FIELD_HEIGHT / 2;
 int currentPosX = 0;
 int currentPosY = 0;
 
+// each transmission has its own unique Z value
+// this is a hack for getting .equals to work on Transmission objects in TreeSet
+int totalNumTransmissions = 0;
+
 PImage bgImage;
 PFont startFont;
 
-TreeSet<UIElement> drawnElements = new TreeSet<>((e1, e2) -> e1.z - e2.z);
-ArrayList<Transmission> transmissionList = new ArrayList<>(); // TODO: draw transmissions in order from largest to smallest?
+// draw elements in order of Z value, if tie, place smaller elements on top
+TreeSet<UIElement> drawnElements = new TreeSet<>((e1, e2) -> e1.z == e2.z ? e2.size - e1.size : e1.z - e2.z);
+ArrayList<Transmission> transmissionList = new ArrayList<>(); 
 
 enum State {
     INTRO, NAVIGATE;
@@ -27,6 +32,7 @@ State currentState = State.INTRO;
 
 void setup() {
     size(512, 512, P2D);
+    smooth(4);
     // fullScreen(P2D);
     MAX_CENTER_X = FIELD_WIDTH - width / 2;
     MAX_CENTER_Y = FIELD_HEIGHT - height / 2;
@@ -37,7 +43,8 @@ void setup() {
     imageMode(CENTER);
     drawIntroScreen();
 
-    transmissionList.add(new Transmission(currentCenterX, currentCenterY, 25));
+    transmissionList.add(new Transmission("TX7351", currentCenterX, currentCenterY, 60));
+    transmissionList.add(new Transmission("TX7352", currentCenterX+60, currentCenterY, 90));
 }
 
 void draw() {
@@ -50,17 +57,19 @@ void draw() {
     fill(255, 255, 255, 255);
     text("(" + currentPosX + ", " + currentPosY + ")", 0, height-5);
 
+    
     for (Transmission t : transmissionList) {
         if (t.transmissionVisible() && !drawnElements.contains(t)) {
             drawnElements.add(t);
+            
+        } else if (drawnElements.contains(t) && !t.transmissionVisible()) { // smart short circuit for efficiency
+            drawnElements.remove(t);
         }
     }
 
     for (UIElement e : drawnElements) {
         e.drawElement();
     }
-
-
 
     if (currentState == State.NAVIGATE) {
         moveBackground();
@@ -71,9 +80,10 @@ void draw() {
 
 void mouseMoved() {
     boolean onClickableElement = false;
-
+    boolean hoveredElementToggled = false; // so we don't double hover
+    
     for (UIElement e : drawnElements.descendingSet()) {
-        if (e.pointInsideElement(mouseX, mouseY)) {
+        if (e.pointInsideElement(mouseX, mouseY) && !hoveredElementToggled) {
 
             if (e.isClickable) {
                 onClickableElement = true;
@@ -83,7 +93,7 @@ void mouseMoved() {
                 e.onEnter();
             }
             e.onHover();
-            break;
+            hoveredElementToggled = true;
         } else if (e.hoverIn) {
             e.onLeave();
         }

@@ -1,6 +1,9 @@
+import java.util.Comparator;
+
 abstract class UIElement {
 
     int x, y, z;
+    int size;
     int boundingWidth = -1;
     int boundingHeight = -1;
     boolean isClickable = false;
@@ -8,7 +11,7 @@ abstract class UIElement {
     boolean hoverJustEntered = false;
     boolean hoverIn = false;
 
-    UIElement(int x, int y, int z) {
+    private UIElement(int x, int y, int z) {
         this.x = x;
         this.y = y;
         this.z = z;
@@ -18,6 +21,7 @@ abstract class UIElement {
         this(x, y, z);
         this.boundingWidth = boundingWidth;
         this.boundingHeight = boundingHeight;
+        size = boundingHeight * boundingWidth;
     }
 
     public void onHover() {
@@ -47,6 +51,7 @@ abstract class UIElement {
         && x >= this.x && x <= this.x+boundingWidth
         && y >= this.y && y <= this.y+boundingHeight);
     }
+
 }
 
 interface CallableAction<T> {
@@ -61,6 +66,8 @@ class Box extends UIElement {
     color hoveredBoxColor;
     color unhoveredBoxColor;
 
+    int rectAlign = CORNER;
+
     public Box(int x, int y, int z, int width, int height, color boxColor) {
         super(x, y, z, width, height);
         this.width = width;
@@ -71,7 +78,7 @@ class Box extends UIElement {
 
     public void drawElement() {
         fill(boxColor);
-        rectMode(CORNER);
+        rectMode(rectAlign);
         if (boxStroke == -1) {
             noStroke();
         } else {
@@ -116,6 +123,7 @@ class MessageBox extends Box {
     int leftMargin = 5;
     int xAlign = CENTER;
     int yAlign = BASELINE;
+    int fontSize = 28;
 
     CallableAction<MessageBox> hoverAction = null;
     CallableAction<MessageBox> clickAction = null;
@@ -129,10 +137,10 @@ class MessageBox extends Box {
 
     public void drawElement() {
         super.drawElement();
-        rectMode(CORNER);
+
         fill(textColor);
         textAlign(xAlign, yAlign);
-        textFont(textFont, 28);
+        textFont(textFont, fontSize);
         text(text, x+leftMargin, y+topMargin, this.width-leftMargin, this.height-topMargin);
     }
 
@@ -159,33 +167,106 @@ class MessageBox extends Box {
 }
 
 class Transmission extends UIElement {
-    int fieldX, fieldY, r;
+    /*
+        Represents a transmission object in the starfield. Minimum radius should be like 35.
+    */
+
+    // drawing variables
+    int fieldX, fieldY, r; 
+    int maxNumRings;
+    int currentRingGlow;
+
+    private int tooltipWidth = 145;
+    private int tooltipHeight = 40;
+    private color tooltipColor = color(0, 255, 0);
+    private color tooltipTextColor = color(0, 0, 0);
+    private color colorOne = color(220, 202, 237);
+    private color colorTwo = color(220, 248, 237);
+
+    private int lastRingTransition = 0;
+    private final int RING_GLOW_DELAY = 400;
+
+    private String name;
 
     // takes in field coords instead of sketch coords
-    public Transmission(int fieldX, int fieldY, int r) {
-        super(0, 0, 0, r*2, r*2); // placeholder x, y coords
+    public Transmission(String name, int fieldX, int fieldY, int r) {
+        super(0, 0, totalNumTransmissions * -1, r*2, r*2); // placeholder x, y coords
+        totalNumTransmissions++;
         this.fieldX = fieldX;
         this.fieldY = fieldY;
         this.r = r;
+        this.name = name;
         isClickable = true;
+
+        // radius divided by the radius difference for each ring
+        maxNumRings = r / 10;
+        currentRingGlow = int(random(0, maxNumRings+1));
     }
 
     public boolean transmissionVisible() {
         return (fieldX + r > currentCenterX - (width/2) && fieldX - r < currentCenterX + (width/2) 
-        && fieldY + r > currentCenterY - (height/2) && fieldY - r < currentCenterY + (width/2));
+        && fieldY + r > currentCenterY - (height/2) && fieldY - r < currentCenterY + (height/2));
     }
 
+    @Override
+    public boolean pointInsideElement(int x, int y) {
+        return (x >= this.x-r && x <= this.x+r
+        && y >= this.y-r && y <= this.y+r);
+    }
+
+    @Override
     public void drawElement() {
         if (transmissionVisible()) {
-            // use corner mode for UIElements
+            // we want center coordinates
             x = ((fieldX - currentCenterX) + width/2);
             y = ((fieldY - currentCenterY) + height/2);
-            
-            ellipseMode(CORNER);
+        
+            ellipseMode(RADIUS);
             noFill();
-            stroke(220, 202, 237);
-            strokeWeight(8);
-            circle(x, y, r*2);
+            stroke(colorOne);
+            strokeWeight(hoverIn ? 4 : 3);
+
+            int currentR = r;
+            int ringNumber = 0;
+
+            if (millis() - lastRingTransition > RING_GLOW_DELAY) {
+                lastRingTransition = millis();
+                currentRingGlow = (currentRingGlow + 1) % maxNumRings;
+            }
+
+            while (currentR > 5) {
+                if (currentRingGlow == ringNumber) {
+                    stroke(colorTwo);
+                } else {
+                    stroke(colorOne);
+                }
+
+                circle(x, y, currentR);
+                currentR -= 10;
+                ringNumber += 1;
+            }
+            
+            // draw title card over transmission
+            if (hoverIn) {
+                rectMode(CENTER);
+                
+                int yFlipper = y - r - tooltipHeight < 0 ? -1 : 1;
+                
+                MessageBox tooltip = new MessageBox(x, y - ((r + tooltipHeight + 5) * yFlipper), 
+                    0, tooltipWidth, tooltipHeight, 
+                    tooltipColor, tooltipTextColor, "Transmission\n" + name);
+                tooltip.fontSize = 12;
+                tooltip.rectAlign = CENTER;
+                tooltip.topMargin = 0;
+                tooltip.leftMargin = 0;
+                tooltip.yAlign = CENTER;
+                tooltip.drawElement();
+            }           
         }
+    }
+
+    @Override
+    public String toString() {
+        return name + ": (" + fieldX + "," + fieldY + ")";
     }
 }
