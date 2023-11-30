@@ -1,3 +1,5 @@
+import processing.javafx.*;
+
 import java.util.TreeSet;
 
 // field/window size
@@ -21,6 +23,8 @@ final int TX_COOLDOWN = 5000; // should be >= 20000 for prod
 int lastTx = 0;
 boolean readyToTransmit = false; // should be initialized to true for prod
 
+Table txData;
+
 PImage bgImage;
 PFont startFont;
 
@@ -35,29 +39,21 @@ enum State {
 State currentState = State.INTRO;
 
 void setup() {
-    // size(1920, 1080, P2D);
-    fullScreen(JAVA2D, 1); // P2D renderer is WAY too slow
-    // smooth(4);
+    // size(512, 512, FX2D);
+    fullScreen(FX2D, 1); // P2D renderer is WAY too slow
+    //frameRate(30);
+    // noSmooth();
     MAX_CENTER_X = FIELD_WIDTH - width / 2;
     MAX_CENTER_Y = FIELD_HEIGHT - height / 2;
 
+    imageMode(CENTER);
     bgImage = loadImage("resources/background.jpg");
     startFont = createFont("resources/PressStart2P-Regular.ttf", 32);
 
-    imageMode(CENTER);
+    loadTxFromCSV();
     drawIntroScreen();
 
-    transmissionList.add(new Transmission("TX7351", currentCenterX, currentCenterY, 60));
-    transmissionList.add(new Transmission("TX7352", currentCenterX+60, currentCenterY, 90));
-    transmissionList.add(new Transmission("TX7353", currentCenterX+70, currentCenterY+80, 40));
-    transmissionList.add(new Transmission("TX7354", currentCenterX+100, currentCenterY+80, 40));    
-
-    for (int i = 0; i < 20; i++) {
-        transmissionList.add(new Transmission("TX" + int(random(100, 300)), int(currentCenterX+random(-500, 500)), int(currentCenterY+random(-400, 400)), int(random(35, 90))));
-    }
-
     println(sketchPath());
-
 }
 
 void draw() {
