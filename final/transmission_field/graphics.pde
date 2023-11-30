@@ -225,7 +225,6 @@ class Transmission extends UIElement {
     
         ellipseMode(RADIUS);
         noFill();
-        stroke(colorOne);
         strokeWeight(hoverIn ? 4 : 3);
 
         int currentR = r;

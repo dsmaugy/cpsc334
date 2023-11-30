@@ -39,3 +39,11 @@ void drawIntroScreen() {
     drawnElements.add(introBox);
     drawnElements.add(closeButton);
 }
+
+void drawTransmissionScreen() {
+    // currentState = State.TRANSMIT;
+    MessageBox transmissionBox = new MessageBox(width/6, height/6, 1, 3*width/6, 3*height/6, color(8, 12, 38, 120), color(255, 255, 255), "Hello");
+    transmissionBox.boxStroke = accentOne;
+
+    drawnElements.add(transmissionBox);
+}

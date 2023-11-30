@@ -17,6 +17,10 @@ int currentPosY = 0;
 // this is a hack for getting .equals to work on Transmission objects in TreeSet
 int totalNumTransmissions = 0;
 
+final int TX_COOLDOWN = 5000; // should be >= 20000 for prod
+int lastTx = 0;
+boolean readyToTransmit = false; // should be initialized to true for prod
+
 PImage bgImage;
 PFont startFont;
 
@@ -25,14 +29,14 @@ TreeSet<UIElement> drawnElements = new TreeSet<>();
 ArrayList<Transmission> transmissionList = new ArrayList<>(); 
 
 enum State {
-    INTRO, NAVIGATE;
+    INTRO, NAVIGATE, TRANSMIT;
 }
 
 State currentState = State.INTRO;
 
 void setup() {
     // size(1920, 1080, P2D);
-    fullScreen(JAVA2D, 1);
+    fullScreen(JAVA2D, 1); // P2D renderer is WAY too slow
     // smooth(4);
     MAX_CENTER_X = FIELD_WIDTH - width / 2;
     MAX_CENTER_Y = FIELD_HEIGHT - height / 2;
@@ -52,18 +56,17 @@ void setup() {
         transmissionList.add(new Transmission("TX" + int(random(100, 300)), int(currentCenterX+random(-500, 500)), int(currentCenterY+random(-400, 400)), int(random(35, 90))));
     }
 
+    println(sketchPath());
+
 }
 
 void draw() {
     // set background starfield in relation to larger canvas
     image(bgImage, (width/2) + ((FIELD_WIDTH/2) - currentCenterX) , (height/2) + ((FIELD_HEIGHT/2) - currentCenterY));
 
-    // create coordinate text
-    textSize(28);
-    textAlign(LEFT, BASELINE);
-    fill(255, 255, 255, 255);
-    text("(" + currentPosX + ", " + currentPosY + ")", 0, height-5);
-
+    // base UI drawing (don't include in drawnElements for efficiency)
+    drawCoordinates();
+    updateTxReady();
     
     for (Transmission t : transmissionList) {
         if (t.transmissionVisible() && !drawnElements.contains(t)) {
@@ -77,6 +80,7 @@ void draw() {
     for (UIElement e : drawnElements) {
         e.drawElement();
     }
+
 
     if (currentState == State.NAVIGATE) {
         moveBackground();
@@ -114,11 +118,17 @@ void mouseMoved() {
 }
 
 void mousePressed() {
+    boolean clickedOnElement = false;
     for (UIElement e : drawnElements.descendingSet()) {
         if (e.pointInsideElement(mouseX, mouseY)) {
+            clickedOnElement = true;
             e.onClick();
             break;
         }
+    }
+
+    if (!clickedOnElement && currentState == State.NAVIGATE) {
+        drawTransmissionScreen();
     }
 }
 
@@ -133,5 +143,31 @@ void moveBackground() {
         currentCenterY -= SCROLL_SPEED_BASE;
     } else if (mouseY > height-FIELD_SCROLL_BORDER && currentCenterY+height/2 < FIELD_HEIGHT-SCROLL_SPEED_BASE) {
         currentCenterY += SCROLL_SPEED_BASE;
+    }
+}
+
+void drawCoordinates() {
+    textSize(28);
+    textAlign(LEFT, BASELINE);
+    fill(255, 255, 255, 255);
+    text("(" + currentPosX + ", " + currentPosY + ")", 0, height-5);
+}
+
+void updateTxReady() {
+    textSize(24);
+    textAlign(RIGHT, BASELINE);
+    fill(255, 255, 255, 255);
+    text("Transmitter Status: ", width-textWidth("READY"), height-45);
+
+    if (millis() - lastTx > TX_COOLDOWN) {
+        readyToTransmit = true;
+        text("Click any empty point to start new transmission", width-5, height-5);
+        fill(0, 255, 0, 255);
+        text("READY", width-5, height-45);
+    } else {
+        readyToTransmit = false;
+        text("Transmitter still cooling down...", width-5, height-5);
+        fill(255, 0, 0, 255);   
+        text("WAIT", width-5, height-45);
     }
 }
