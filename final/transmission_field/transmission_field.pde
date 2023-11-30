@@ -23,6 +23,11 @@ final int TX_COOLDOWN = 5000; // should be >= 20000 for prod
 int lastTx = 0;
 boolean readyToTransmit = false; // should be initialized to true for prod
 
+// current transmission variables
+int buttonsVal = 0;
+int potVal = 0;
+int distVal = 0;
+
 Table txData;
 
 PImage bgImage;

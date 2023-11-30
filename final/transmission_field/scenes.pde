@@ -11,7 +11,19 @@ wai ttill i get my money right
 ooooh
 """;
 
+String txStepsText = """1. Input desired message
+2. Choose encoding mode by toggling desired combination of buttons
+3. Turn knob to select desired broadcast frequency
+4. Adjust hand on side of transmission device to select desired broadcast phase
+5. Click TRANSMIT to activate transmission
+""";
+
+
+
 color accentOne = color(239, 225, 250);
+color txScreenColor = color(8, 12, 38, 250);
+color mutedGrayColor = color(76, 70, 82, 200);
+color transparentColor = color(0, 0, 0, 1); // this is a hack, 0 transparency doesn't work
 
 void drawIntroScreen() {
     currentState = State.INTRO;
@@ -35,14 +47,14 @@ void drawIntroScreen() {
         currentState = State.NAVIGATE;
     };
     
-    drawnElements.add(new Box(0, 0, 0, width, height, color(76, 70, 82, 200)));
+    drawnElements.add(new Box(0, 0, 0, width, height, mutedGrayColor));
     drawnElements.add(introBox);
     drawnElements.add(closeButton);
 }
 
 void drawTransmissionScreen() {
     currentState = State.TRANSMIT;
-    MessageBox txBox = new MessageBox(width/2, height/2, 100, 2*width/5, 5*height/6, color(8, 12, 38, 250), color(255, 255, 255), "Hello");
+    MessageBox txBox = new MessageBox(width/2, height/2, 100, 4*width/5, 5*height/6, txScreenColor, color(255, 255, 255), "Transmitter v2");
     txBox.boxStroke = accentOne;
     txBox.rectAlign = CENTER;
 
@@ -52,7 +64,20 @@ void drawTransmissionScreen() {
         currentState = State.NAVIGATE;
     };
 
-    drawnElements.add(new Box(0, 0, 99, width, height, color(76, 70, 82, 200))); // background mute
+    MessageBox txDesc = new MessageBox(txBox.x, txBox.y-txBox.height/2+100, 102, txBox.width, 60, transparentColor, color(255, 255, 255), "Transmission Steps:");
+    txDesc.fontSize = 15;
+    txDesc.rectAlign = CENTER;
+
+    // debugging color
+    // color(255, 0, 160, 10)
+    MessageBox txSteps = new MessageBox(txBox.x, txDesc.y+70, 103, txBox.width, 120, transparentColor, color(255, 255, 255), txStepsText);
+    txSteps.fontSize = 15;
+    txSteps.xAlign = LEFT;
+    txSteps.rectAlign = CENTER;
+
+    drawnElements.add(new Box(0, 0, 99, width, height, mutedGrayColor)); // background mute
     drawnElements.add(txBox);
     drawnElements.add(cb);
+    drawnElements.add(txDesc);
+    drawnElements.add(txSteps);
 }
