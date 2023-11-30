@@ -1,6 +1,5 @@
-import java.util.Comparator;
 
-abstract class UIElement {
+abstract class UIElement implements Comparable<UIElement> {
 
     int x, y, z;
     int size;
@@ -50,6 +49,10 @@ abstract class UIElement {
         return (boundingWidth > 0 && boundingHeight > 0 
         && x >= this.x && x <= this.x+boundingWidth
         && y >= this.y && y <= this.y+boundingHeight);
+    }
+
+    public int compareTo(UIElement e2) {
+        return this.z == e2.z ? e2.size - this.size : this.z - e2.z;
     }
 
 }
@@ -216,57 +219,68 @@ class Transmission extends UIElement {
 
     @Override
     public void drawElement() {
-        if (transmissionVisible()) {
-            // we want center coordinates
-            x = ((fieldX - currentCenterX) + width/2);
-            y = ((fieldY - currentCenterY) + height/2);
-        
-            ellipseMode(RADIUS);
-            noFill();
-            stroke(colorOne);
-            strokeWeight(hoverIn ? 4 : 3);
+        // we want center coordinates
+        x = ((fieldX - currentCenterX) + width/2);
+        y = ((fieldY - currentCenterY) + height/2);
+    
+        ellipseMode(RADIUS);
+        noFill();
+        stroke(colorOne);
+        strokeWeight(hoverIn ? 4 : 3);
 
-            int currentR = r;
-            int ringNumber = 0;
+        int currentR = r;
+        int ringNumber = 0;
 
-            if (millis() - lastRingTransition > RING_GLOW_DELAY) {
-                lastRingTransition = millis();
-                currentRingGlow = (currentRingGlow + 1) % maxNumRings;
-            }
-
-            while (currentR > 5) {
-                if (currentRingGlow == ringNumber) {
-                    stroke(colorTwo);
-                } else {
-                    stroke(colorOne);
-                }
-
-                circle(x, y, currentR);
-                currentR -= 10;
-                ringNumber += 1;
-            }
-            
-            // draw title card over transmission
-            if (hoverIn) {
-                rectMode(CENTER);
-                
-                int yFlipper = y - r - tooltipHeight < 0 ? -1 : 1;
-                
-                MessageBox tooltip = new MessageBox(x, y - ((r + tooltipHeight + 5) * yFlipper), 
-                    0, tooltipWidth, tooltipHeight, 
-                    tooltipColor, tooltipTextColor, "Transmission\n" + name);
-                tooltip.fontSize = 12;
-                tooltip.rectAlign = CENTER;
-                tooltip.topMargin = 0;
-                tooltip.leftMargin = 0;
-                tooltip.yAlign = CENTER;
-                tooltip.drawElement();
-            }           
+        if (millis() - lastRingTransition > RING_GLOW_DELAY) {
+            lastRingTransition = millis();
+            currentRingGlow = (currentRingGlow + 1) % maxNumRings;
         }
+
+        while (currentR > 5) {
+            if (currentRingGlow == ringNumber) {
+                stroke(colorTwo);
+            } else {
+                stroke(colorOne);
+            }
+
+            circle(x, y, currentR);
+            currentR -= 10;
+            ringNumber += 1;
+        }
+        
+        // draw title card over transmission
+        if (hoverIn) {
+            rectMode(CENTER);
+            
+            int yFlipper = y - r - tooltipHeight < 0 ? -1 : 1;
+            
+            MessageBox tooltip = new MessageBox(x, y - ((r + tooltipHeight + 5) * yFlipper), 
+                0, tooltipWidth, tooltipHeight, 
+                tooltipColor, tooltipTextColor, "Transmission\n" + name);
+            tooltip.fontSize = 12;
+            tooltip.rectAlign = CENTER;
+            tooltip.topMargin = 0;
+            tooltip.leftMargin = 0;
+            tooltip.yAlign = CENTER;
+            tooltip.drawElement();
+        }           
     }
 
     @Override
     public String toString() {
         return name + ": (" + fieldX + "," + fieldY + ")";
+    }
+
+    // need to override this to make sure we draw smaller transmissions on top 
+    // break ties with transmission name
+    @Override
+    public int compareTo(UIElement e2) {
+        if (e2 instanceof Transmission) {
+            Transmission transObj = (Transmission) e2;
+            return transObj.r == this.r ? this.name.compareTo(transObj.name) : transObj.r - this.r;
+        } else {
+            return super.compareTo(e2);
+        }
+
     }
 }

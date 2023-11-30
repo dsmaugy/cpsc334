@@ -21,7 +21,7 @@ PImage bgImage;
 PFont startFont;
 
 // draw elements in order of Z value, if tie, place smaller elements on top
-TreeSet<UIElement> drawnElements = new TreeSet<>((e1, e2) -> e1.z == e2.z ? e2.size - e1.size : e1.z - e2.z);
+TreeSet<UIElement> drawnElements = new TreeSet<>();
 ArrayList<Transmission> transmissionList = new ArrayList<>(); 
 
 enum State {
@@ -31,9 +31,9 @@ enum State {
 State currentState = State.INTRO;
 
 void setup() {
-    size(512, 512, P2D);
-    smooth(4);
-    // fullScreen(P2D);
+    // size(1920, 1080, P2D);
+    fullScreen(JAVA2D, 1);
+    // smooth(4);
     MAX_CENTER_X = FIELD_WIDTH - width / 2;
     MAX_CENTER_Y = FIELD_HEIGHT - height / 2;
 
@@ -45,6 +45,13 @@ void setup() {
 
     transmissionList.add(new Transmission("TX7351", currentCenterX, currentCenterY, 60));
     transmissionList.add(new Transmission("TX7352", currentCenterX+60, currentCenterY, 90));
+    transmissionList.add(new Transmission("TX7353", currentCenterX+70, currentCenterY+80, 40));
+    transmissionList.add(new Transmission("TX7354", currentCenterX+100, currentCenterY+80, 40));    
+
+    for (int i = 0; i < 20; i++) {
+        transmissionList.add(new Transmission("TX" + int(random(100, 300)), int(currentCenterX+random(-500, 500)), int(currentCenterY+random(-400, 400)), int(random(35, 90))));
+    }
+
 }
 
 void draw() {
