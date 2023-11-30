@@ -94,13 +94,11 @@ class Box extends UIElement {
 
 class CloseButton extends Box {
 
-    CallableAction<CloseButton> action;
+    CallableAction<CloseButton> clickAction = null;
 
-    public CloseButton(int x, int y, int z, int width, int height, CallableAction action) {
+    public CloseButton(int x, int y, int z, int width, int height) {
         super(x, y, z, width, height, color(240, 65, 82));
         isClickable = true;
-
-        this.action = action;
     }
 
     public void drawElement() {
@@ -113,7 +111,9 @@ class CloseButton extends Box {
 
     public void onClick() {
         super.onClick();
-        action.doAction(this);
+        if (clickAction != null) {
+            clickAction.doAction(this);
+        }
     }
 }
 

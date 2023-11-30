@@ -41,9 +41,18 @@ void drawIntroScreen() {
 }
 
 void drawTransmissionScreen() {
-    // currentState = State.TRANSMIT;
-    MessageBox transmissionBox = new MessageBox(width/6, height/6, 1, 3*width/6, 3*height/6, color(8, 12, 38, 120), color(255, 255, 255), "Hello");
-    transmissionBox.boxStroke = accentOne;
+    currentState = State.TRANSMIT;
+    MessageBox txBox = new MessageBox(width/2, height/2, 100, 2*width/5, 5*height/6, color(8, 12, 38, 250), color(255, 255, 255), "Hello");
+    txBox.boxStroke = accentOne;
+    txBox.rectAlign = CENTER;
 
-    drawnElements.add(transmissionBox);
+    CloseButton cb = new CloseButton(txBox.x + txBox.width/2 - 15, txBox.y - txBox.height/2 - 15, 101, 35, 35);
+    cb.clickAction = (b1) -> {
+        drawnElements.clear();
+        currentState = State.NAVIGATE;
+    };
+
+    drawnElements.add(new Box(0, 0, 99, width, height, color(76, 70, 82, 200))); // background mute
+    drawnElements.add(txBox);
+    drawnElements.add(cb);
 }
