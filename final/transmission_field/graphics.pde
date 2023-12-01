@@ -283,3 +283,44 @@ class Transmission extends UIElement {
 
     }
 }
+
+class SensorGauge extends UIElement {
+    float desiredAngle = 130;
+    float currentAngle = 0;
+    int lastTickerMove = 0;
+    int tickerCooldown = 5;
+
+    public SensorGauge(int x, int y, int z, int width, int height) {
+        super(x, y, z, width, height);
+    }
+
+    @Override
+    public void drawElement() {
+        shapeMode(CENTER);
+        shape(gaugeSvg, x, y, boundingWidth, boundingHeight);
+
+        stroke(color(170, 0, 0));
+        strokeWeight(3);
+
+        int endX = x-boundingWidth/2;
+        int endY = y+boundingHeight/2;
+        int tickerLength = boundingWidth/2;
+
+        if (millis() - lastTickerMove > tickerCooldown) {
+            lastTickerMove = millis();
+            float delta = map(abs(desiredAngle - currentAngle), 0, 180, 0, 10);
+            currentAngle += desiredAngle - currentAngle > 0 ? delta : -delta;
+
+            if (random(1) < 0.1) {
+                currentAngle += random(-1, 1);
+            }
+        }
+
+        float theta = radians(currentAngle);
+        line(x, y+boundingHeight/2, x - tickerLength*cos(theta), endY - tickerLength*sin(theta));
+    }
+
+    public void setAngle(float degrees) {
+        desiredAngle = degrees;
+    }
+}

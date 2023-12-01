@@ -27,11 +27,14 @@ boolean readyToTransmit = false; // should be initialized to true for prod
 int buttonsVal = 0;
 int potVal = 0;
 int distVal = 0;
+// transmission UI elements to update
+MessageBox activeTextField = null;
 
 Table txData;
 
 PImage bgImage;
 PFont startFont;
+PShape gaugeSvg;
 
 // draw elements in order of Z value, if tie, place smaller elements on top
 TreeSet<UIElement> drawnElements = new TreeSet<>();
@@ -45,8 +48,7 @@ State currentState = State.INTRO;
 
 void setup() {
     // size(512, 512, FX2D);
-    fullScreen(FX2D, 1); // P2D renderer is WAY too slow
-    //frameRate(30);
+    fullScreen(FX2D, 1); 
     // noSmooth();
     MAX_CENTER_X = FIELD_WIDTH - width / 2;
     MAX_CENTER_Y = FIELD_HEIGHT - height / 2;
@@ -54,11 +56,13 @@ void setup() {
     imageMode(CENTER);
     bgImage = loadImage("resources/background.jpg");
     startFont = createFont("resources/PressStart2P-Regular.ttf", 32);
+    gaugeSvg = loadShape("resources/gauge.svg");
 
     loadTxFromCSV();
     drawIntroScreen();
 
     println(sketchPath());
+    
 }
 
 void draw() {
@@ -130,6 +134,17 @@ void mousePressed() {
 
     if (!clickedOnElement && currentState == State.NAVIGATE) {
         drawTransmissionScreen();
+    }
+}
+
+void keyTyped() {
+    if (currentState == State.TRANSMIT && activeTextField != null) {
+        if (key == BACKSPACE) {
+            if (activeTextField.text.length() > 0)
+                activeTextField.text = activeTextField.text.substring(0, activeTextField.text.length()-1); 
+        } else {
+            activeTextField.text += key;
+        }   
     }
 }
 

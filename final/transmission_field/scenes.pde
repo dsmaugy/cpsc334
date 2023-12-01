@@ -75,9 +75,19 @@ void drawTransmissionScreen() {
     txSteps.xAlign = LEFT;
     txSteps.rectAlign = CENTER;
 
+    SensorGauge distGauge = new SensorGauge(width/2, height/2, 104, 196, 90);
+
+    MessageBox entryBox = new MessageBox(txBox.x, txBox.y+40, 105, txBox.width, 80, color(255, 0, 160, 10), color(255, 255, 255), Character.toString('\u1FE0'));
+    entryBox.xAlign = LEFT;
+    entryBox.rectAlign = CENTER;
+    entryBox.fontSize = 17;
+    activeTextField = entryBox;
+
     drawnElements.add(new Box(0, 0, 99, width, height, mutedGrayColor)); // background mute
     drawnElements.add(txBox);
     drawnElements.add(cb);
     drawnElements.add(txDesc);
     drawnElements.add(txSteps);
+    drawnElements.add(distGauge);
+    drawnElements.add(entryBox);
 }
