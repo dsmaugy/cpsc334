@@ -1,3 +1,6 @@
+import java.util.LinkedList;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 abstract class UIElement implements Comparable<UIElement> {
 
@@ -141,7 +144,10 @@ class MessageBox extends Box {
     @Override
     public void drawElement() {
         super.drawElement();
+        drawText();
+    }
 
+    void drawText() {
         fill(textColor);
         textAlign(xAlign, yAlign);
         textFont(textFont, fontSize);
@@ -174,16 +180,48 @@ class TextEntryBox extends MessageBox {
 
     boolean isCursorVisible = false;
     int cursorBlinkRate = 1000;
+    int lastCursorBlink = 0;
+
+    LinkedList<Character> textEntry; 
 
     public TextEntryBox(int x, int y, int z, int width, int height, color boxColor, color textColor, String text) {
         super(x, y, z, width, height, boxColor, textColor, text);
+        textEntry = new LinkedList<>();
+        for (Character c : text.toCharArray()) {
+            textEntry.add(c); // do this manually cuz java dumb
+        }
     }
 
     @Override
     public void drawElement() {
-        super.drawElement();
-
         // TODO: blinking cursor
+        if (millis() - lastCursorBlink > cursorBlinkRate) {
+            lastCursorBlink = millis();
+            if (isCursorVisible) {
+                isCursorVisible = false;
+                textEntry.removeLast();
+            } else {
+                isCursorVisible = true;
+                textEntry.add('|');
+            }
+        }
+
+        // Character[] chars = (Character[]) textEntry.toArray();
+        text = textEntry.stream()
+            .map(Object::toString)
+            .collect(Collectors.joining());
+
+        super.drawElement();
+    }
+
+    public void addChar(char c) {
+        int lastCharIdx = isCursorVisible ? textEntry.size() - 2: textEntry.size() - 1;
+        textEntry.add(lastCharIdx, c);
+    }
+
+    public void removeChar() {
+        int lastCharIdx = isCursorVisible ? textEntry.size() - 2: textEntry.size() - 1;
+        textEntry.remove(lastCharIdx);
     }
 }
 
