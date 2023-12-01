@@ -47,8 +47,8 @@ abstract class UIElement implements Comparable<UIElement> {
 
     public boolean pointInsideElement(int x, int y) {
         return (boundingWidth > 0 && boundingHeight > 0 
-        && x >= this.x && x <= this.x+boundingWidth
-        && y >= this.y && y <= this.y+boundingHeight);
+        && x >= this.x-boundingWidth/2 && x <= this.x+boundingWidth/2
+        && y >= this.y-boundingHeight/2 && y <= this.y+boundingHeight/2);
     }
 
     public int compareTo(UIElement e2) {
@@ -69,7 +69,7 @@ class Box extends UIElement {
     color hoveredBoxColor;
     color unhoveredBoxColor;
 
-    int rectAlign = CORNER;
+    int rectAlign = CENTER;
 
     public Box(int x, int y, int z, int width, int height, color boxColor) {
         super(x, y, z, width, height);
@@ -105,8 +105,8 @@ class CloseButton extends Box {
         super.drawElement();
         stroke(255, 255, 255);
         strokeWeight(6);
-        line(x+5, y+5, x-5 + this.width, y-5 + this.height);
-        line(x+5, y-5 + this.height, x-5 + this.width, y+5);
+        line(x-this.width/2+5, y-this.height/2+5, x+this.width/2-5, y+this.height/2-5);
+        line(x-this.width/2+5, y+this.height/2-5, x+this.width/2-5, y-this.height/2+5);
     }
 
     public void onClick() {
@@ -138,6 +138,7 @@ class MessageBox extends Box {
         this.text = text;
     }
 
+    @Override
     public void drawElement() {
         super.drawElement();
 
@@ -166,6 +167,23 @@ class MessageBox extends Box {
         if (leaveAction != null) {
             leaveAction.doAction(this);
         }
+    }
+}
+
+class TextEntryBox extends MessageBox {
+
+    boolean isCursorVisible = false;
+    int cursorBlinkRate = 1000;
+
+    public TextEntryBox(int x, int y, int z, int width, int height, color boxColor, color textColor, String text) {
+        super(x, y, z, width, height, boxColor, textColor, text);
+    }
+
+    @Override
+    public void drawElement() {
+        super.drawElement();
+
+        // TODO: blinking cursor
     }
 }
 
@@ -285,13 +303,19 @@ class Transmission extends UIElement {
 }
 
 class SensorGauge extends UIElement {
-    float desiredAngle = 130;
-    float currentAngle = 0;
-    int lastTickerMove = 0;
-    int tickerCooldown = 5;
+    float desiredAngle = 180;
+    private float currentAngle = 0;
+    private int lastTickerMove = 0;
+    private int tickerCooldown = 5;
 
-    public SensorGauge(int x, int y, int z, int width, int height) {
+    int sensorValue = 0;
+    String sensorName;
+    String valueUnit;
+
+    public SensorGauge(int x, int y, int z, int width, int height, String sensorName, String valueUnit) {
         super(x, y, z, width, height);
+        this.sensorName = sensorName;
+        this.valueUnit = valueUnit;
     }
 
     @Override
@@ -318,6 +342,12 @@ class SensorGauge extends UIElement {
 
         float theta = radians(currentAngle);
         line(x, y+boundingHeight/2, x - tickerLength*cos(theta), endY - tickerLength*sin(theta));
+
+        fill(255, 255, 255);
+        textAlign(CENTER, BASELINE);
+        textFont(startFont, 18);
+        text(sensorName, x+5, y - boundingHeight + 20);
+        text("" + sensorValue + " " + valueUnit, x+5, y + boundingHeight - 10);
     }
 
     public void setAngle(float degrees) {

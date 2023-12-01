@@ -56,7 +56,7 @@ void setup() {
     imageMode(CENTER);
     bgImage = loadImage("resources/background.jpg");
     startFont = createFont("resources/PressStart2P-Regular.ttf", 32);
-    gaugeSvg = loadShape("resources/gauge.svg");
+    gaugeSvg = loadShape("resources/gauge_2.svg");
 
     loadTxFromCSV();
     drawIntroScreen();
