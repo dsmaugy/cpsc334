@@ -1,6 +1,9 @@
 import processing.javafx.*;
+import processing.serial.*;
 
 import java.util.TreeSet;
+
+String serialPort = "COM3";
 
 // field/window size
 final int FIELD_WIDTH = 4000;
@@ -29,6 +32,9 @@ int potVal = 0;
 int distVal = 0;
 // transmission UI elements to update
 TextEntryBox activeTextField = null;
+SensorGauge activeDistGauge = null;
+SensorGauge activePotGauge = null;
+ButtonCombo activeButtonCombo = null;
 
 Table txData;
 
@@ -39,6 +45,8 @@ PShape gaugeSvg;
 // draw elements in order of Z value, if tie, place smaller elements on top
 TreeSet<UIElement> drawnElements = new TreeSet<>();
 ArrayList<Transmission> transmissionList = new ArrayList<>(); 
+
+Serial esp32;
 
 enum State {
     INTRO, NAVIGATE, TRANSMIT;
@@ -61,7 +69,11 @@ void setup() {
     loadTxFromCSV();
     drawIntroScreen();
 
+    esp32 = new Serial(this, serialPort, 9600);
+    esp32.bufferUntil('\n');
+
     println(sketchPath());
+    println(Serial.list());
     
 }
 
@@ -82,10 +94,13 @@ void draw() {
         }
     }
 
+    if (currentState == State.TRANSMIT) {
+        updateSenorValues();
+    }
+
     for (UIElement e : drawnElements) {
         e.drawElement();
     }
-
 
     if (currentState == State.NAVIGATE) {
         moveBackground();
@@ -186,4 +201,12 @@ void updateTxReady() {
         fill(255, 0, 0, 255);   
         text("WAIT", width-5, height-45);
     }
+}
+
+void updateSenorValues() {
+    activeDistGauge.setAngle(max(map(distVal, 0, 80, 180, 0), 0));
+    activeDistGauge.setValue(int(max(map(distVal, 0, 200, 20, 0), 0)));
+
+    activePotGauge.setAngle(min(map(potVal, 0, 4095, 0, 180), 180));
+    activePotGauge.setValue(int(min(map(potVal, 0, 4095, 20, 100), 20000)));
 }

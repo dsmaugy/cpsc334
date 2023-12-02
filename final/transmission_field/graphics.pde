@@ -340,7 +340,7 @@ class Transmission extends UIElement {
 }
 
 class SensorGauge extends UIElement {
-    float desiredAngle = 180;
+    float desiredAngle = 0;
     private float currentAngle = 0;
     private int lastTickerMove = 0;
     private int tickerCooldown = 5;
@@ -390,11 +390,19 @@ class SensorGauge extends UIElement {
     public void setAngle(float degrees) {
         desiredAngle = degrees;
     }
+
+    public void setValue(int sensorValue) {
+        this.sensorValue = sensorValue;
+    }
 }
 
 class ButtonCombo extends UIElement {
 
     int circleSpacing;
+    boolean[] lightOn = {false, true, false};
+
+    color colorOff = color(0, 100, 100);
+    color colorOn = color(0, 255, 100);
 
     public ButtonCombo(int x, int y, int z, int boundingWidth, int boundingHeight) {
         super(x, y, z, boundingWidth, boundingHeight);
@@ -404,11 +412,20 @@ class ButtonCombo extends UIElement {
     @Override
     public void drawElement() {
         ellipseMode(CENTER);
-        fill(0, 255, 0);
         noStroke();
         for (int i=0; i<3; i++) {
+            if (lightOn[i]) {
+                fill(colorOn);
+            } else {
+                fill(colorOff);
+            }
             circle(x-circleSpacing + (i*circleSpacing), y, boundingHeight);
         }
+        
+        fill(255, 255, 255);
+        textAlign(CENTER, BASELINE);
+        textFont(startFont, 18);
+        text("Encoding Method", x, y - boundingHeight + 10);
     }
     
 }

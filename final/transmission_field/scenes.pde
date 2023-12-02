@@ -54,7 +54,7 @@ void drawIntroScreen() {
 
 void drawTransmissionScreen() {
     currentState = State.TRANSMIT;
-    MessageBox txBox = new MessageBox(width/2, height/2, 100, 4*width/5, 5*height/6, txScreenColor, color(255, 0, 0), "Transmitter v2");
+    MessageBox txBox = new MessageBox(width/2, height/2, 100, 4*width/5, 7*height/8, txScreenColor, color(255, 0, 0), "Transmitter v2");
     txBox.boxStroke = accentOne;
 
     // txBox.y - txBox.height/2 - 15
@@ -74,15 +74,26 @@ void drawTransmissionScreen() {
     txSteps.xAlign = LEFT;
 
     SensorGauge distGauge = new SensorGauge(width/2, txSteps.y+txSteps.height+55, 104, 196, 90, "Signal Attenuator", "dB");
-    SensorGauge potGauge = new SensorGauge(3*width/4, txSteps.y+txSteps.height+55, 105, 196, 90, "Signal Frequency", "Hz");
+    SensorGauge potGauge = new SensorGauge(3*width/4, txSteps.y+txSteps.height+55, 105, 196, 90, "Signal Frequency", "kHz");
     ButtonCombo buttonDisp = new ButtonCombo(width/4, txSteps.y+txSteps.height+55, 106, 370, 80);
+    activeDistGauge = distGauge;
+    activePotGauge = potGauge;
+    activeButtonCombo = buttonDisp;
 
     TextEntryBox entryBox = new TextEntryBox(txBox.x, txBox.y+190, 107, txBox.width-8, 400, color(0, 0, 0), color(0, 255, 0), Character.toString('\u1FE0'));
     entryBox.xAlign = LEFT;
     entryBox.fontSize = 17;
     // entryBox.boxStroke = color(255, 0, 0);
-
     activeTextField = entryBox;
+
+    MessageBox transmitButton = new MessageBox(width/2, ((txBox.y+txBox.height/2) + (entryBox.y + entryBox.height/2))/2, // halfway between terminal and box end
+        108, 300, 35, color(255, 100, 255), color(255, 255, 255), "TRANSMIT");
+    transmitButton.fontSize = 20;
+    transmitButton.isClickable = true;
+    transmitButton.boxStroke = accentOne;
+    transmitButton.clickAction = (b1) -> {
+        println("Transmission submitted!");
+    };
 
     drawnElements.add(new Box(width/2, height/2, 99, width, height, mutedGrayColor)); // background mute
     drawnElements.add(txBox);
@@ -90,7 +101,8 @@ void drawTransmissionScreen() {
     drawnElements.add(txDesc);
     drawnElements.add(txSteps);
     drawnElements.add(distGauge);
-    drawnElements.add(entryBox);
     drawnElements.add(potGauge);
     drawnElements.add(buttonDisp);
+    drawnElements.add(entryBox);
+    drawnElements.add(transmitButton);
 }
