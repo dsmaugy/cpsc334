@@ -19,9 +19,9 @@ String txStepsText = """1. Input desired message
 """;
 
 
-
+// color(0, 0, 0);
 color accentOne = color(239, 225, 250);
-color txScreenColor = color(8, 12, 38, 250);
+color txScreenColor =  color(8, 12, 38, 250);
 color mutedGrayColor = color(76, 70, 82, 200);
 color transparentColor = color(0, 0, 0, 1); // this is a hack, 0 transparency doesn't work
 
@@ -54,7 +54,7 @@ void drawIntroScreen() {
 
 void drawTransmissionScreen() {
     currentState = State.TRANSMIT;
-    MessageBox txBox = new MessageBox(width/2, height/2, 100, 4*width/5, 5*height/6, txScreenColor, color(255, 255, 255), "Transmitter v2");
+    MessageBox txBox = new MessageBox(width/2, height/2, 100, 4*width/5, 5*height/6, txScreenColor, color(255, 0, 0), "Transmitter v2");
     txBox.boxStroke = accentOne;
 
     // txBox.y - txBox.height/2 - 15
@@ -76,9 +76,11 @@ void drawTransmissionScreen() {
     SensorGauge distGauge = new SensorGauge(width/2, txSteps.y+txSteps.height+55, 104, 196, 90, "Signal Attenuator", "dB");
     SensorGauge potGauge = new SensorGauge(3*width/4, txSteps.y+txSteps.height+55, 105, 196, 90, "Signal Frequency", "Hz");
 
-    TextEntryBox entryBox = new TextEntryBox(txBox.x, txBox.y+40, 107, txBox.width, 80, color(255, 255, 255, 10), color(0, 255, 0), Character.toString('\u1FE0'));
+    TextEntryBox entryBox = new TextEntryBox(txBox.x, txBox.y+190, 107, txBox.width-8, 400, color(0, 0, 0), color(0, 255, 0), Character.toString('\u1FE0'));
     entryBox.xAlign = LEFT;
     entryBox.fontSize = 17;
+    // entryBox.boxStroke = color(255, 0, 0);
+
     activeTextField = entryBox;
 
     drawnElements.add(new Box(width/2, height/2, 99, width, height, mutedGrayColor)); // background mute

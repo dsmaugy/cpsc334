@@ -28,7 +28,7 @@ int buttonsVal = 0;
 int potVal = 0;
 int distVal = 0;
 // transmission UI elements to update
-MessageBox activeTextField = null;
+TextEntryBox activeTextField = null;
 
 Table txData;
 
@@ -141,9 +141,9 @@ void keyTyped() {
     if (currentState == State.TRANSMIT && activeTextField != null) {
         if (key == BACKSPACE) {
             if (activeTextField.text.length() > 0)
-                activeTextField.text = activeTextField.text.substring(0, activeTextField.text.length()-1); 
+                activeTextField.removeChar(); 
         } else {
-            activeTextField.text += key;
+            activeTextField.addChar(key);
         }   
     }
 }

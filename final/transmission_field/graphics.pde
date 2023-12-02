@@ -215,13 +215,14 @@ class TextEntryBox extends MessageBox {
     }
 
     public void addChar(char c) {
-        int lastCharIdx = isCursorVisible ? textEntry.size() - 2: textEntry.size() - 1;
+        int lastCharIdx = isCursorVisible ? textEntry.size() - 1: textEntry.size();
         textEntry.add(lastCharIdx, c);
     }
 
     public void removeChar() {
         int lastCharIdx = isCursorVisible ? textEntry.size() - 2: textEntry.size() - 1;
-        textEntry.remove(lastCharIdx);
+        if (lastCharIdx >= 0)
+            textEntry.remove(lastCharIdx);
     }
 }
 
