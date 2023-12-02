@@ -75,6 +75,7 @@ void drawTransmissionScreen() {
 
     SensorGauge distGauge = new SensorGauge(width/2, txSteps.y+txSteps.height+55, 104, 196, 90, "Signal Attenuator", "dB");
     SensorGauge potGauge = new SensorGauge(3*width/4, txSteps.y+txSteps.height+55, 105, 196, 90, "Signal Frequency", "Hz");
+    ButtonCombo buttonDisp = new ButtonCombo(width/4, txSteps.y+txSteps.height+55, 106, 370, 80);
 
     TextEntryBox entryBox = new TextEntryBox(txBox.x, txBox.y+190, 107, txBox.width-8, 400, color(0, 0, 0), color(0, 255, 0), Character.toString('\u1FE0'));
     entryBox.xAlign = LEFT;
@@ -91,4 +92,5 @@ void drawTransmissionScreen() {
     drawnElements.add(distGauge);
     drawnElements.add(entryBox);
     drawnElements.add(potGauge);
+    drawnElements.add(buttonDisp);
 }

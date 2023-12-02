@@ -194,7 +194,6 @@ class TextEntryBox extends MessageBox {
 
     @Override
     public void drawElement() {
-        // TODO: blinking cursor
         if (millis() - lastCursorBlink > cursorBlinkRate) {
             lastCursorBlink = millis();
             if (isCursorVisible) {
@@ -206,7 +205,6 @@ class TextEntryBox extends MessageBox {
             }
         }
 
-        // Character[] chars = (Character[]) textEntry.toArray();
         text = textEntry.stream()
             .map(Object::toString)
             .collect(Collectors.joining());
@@ -392,4 +390,25 @@ class SensorGauge extends UIElement {
     public void setAngle(float degrees) {
         desiredAngle = degrees;
     }
+}
+
+class ButtonCombo extends UIElement {
+
+    int circleSpacing;
+
+    public ButtonCombo(int x, int y, int z, int boundingWidth, int boundingHeight) {
+        super(x, y, z, boundingWidth, boundingHeight);
+        circleSpacing = boundingWidth/4;
+    }   
+
+    @Override
+    public void drawElement() {
+        ellipseMode(CENTER);
+        fill(0, 255, 0);
+        noStroke();
+        for (int i=0; i<3; i++) {
+            circle(x-circleSpacing + (i*circleSpacing), y, boundingHeight);
+        }
+    }
+    
 }
