@@ -40,6 +40,7 @@ Table txData;
 
 PImage bgImage;
 PFont startFont;
+PFont timesNewRoman;
 PShape gaugeSvg;
 
 // draw elements in order of Z value, if tie, place smaller elements on top
@@ -64,16 +65,18 @@ void setup() {
     imageMode(CENTER);
     bgImage = loadImage("resources/background.jpg");
     startFont = createFont("resources/PressStart2P-Regular.ttf", 32);
+    timesNewRoman = createFont("Times New Roman Bold", 32, false);
     gaugeSvg = loadShape("resources/gauge_2.svg");
 
     loadTxFromCSV();
     drawIntroScreen();
 
-    esp32 = new Serial(this, serialPort, 9600);
-    esp32.bufferUntil('\n');
+    // esp32 = new Serial(this, serialPort, 9600);
+    // esp32.bufferUntil('\n');
 
     println(sketchPath());
     println(Serial.list());
+    println(PFont.list());
     
 }
 

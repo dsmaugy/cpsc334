@@ -80,7 +80,8 @@ void drawTransmissionScreen() {
     activePotGauge = potGauge;
     activeButtonCombo = buttonDisp;
 
-    TextEntryBox entryBox = new TextEntryBox(txBox.x, txBox.y+190, 107, txBox.width-8, 400, color(0, 0, 0), color(0, 255, 0), Character.toString('\u1FE0'));
+    TextEntryBox entryBox = new TextEntryBox(txBox.x, txBox.y+190, 107, txBox.width-8, 400, color(0, 0, 0), color(0, 255, 0), Character.toString('\u288B'));
+    entryBox.textFont = timesNewRoman;
     entryBox.xAlign = LEFT;
     entryBox.fontSize = 17;
     // entryBox.boxStroke = color(255, 0, 0);
