@@ -1,6 +1,7 @@
 import java.util.LinkedList;
 import java.util.Arrays;
 import java.util.stream.Collectors;
+import java.util.ConcurrentModificationException;
 
 abstract class UIElement implements Comparable<UIElement> {
 
@@ -148,10 +149,17 @@ class MessageBox extends Box {
     }
 
     void drawText() {
-        fill(textColor);
-        textAlign(xAlign, yAlign);
-        textFont(textFont, fontSize);
-        text(text, x+leftMargin, y+topMargin, this.width-leftMargin, this.height-topMargin);
+        try {
+            fill(textColor);
+            textAlign(xAlign, yAlign);
+            textFont(textFont, fontSize);
+            text(text, x+leftMargin, y+topMargin, this.width-leftMargin, this.height-topMargin);
+        } catch (ConcurrentModificationException e) {
+            // no idea why this happens, but it's rare
+            // EDIT: version 21 of JAVAFX on linux seems to fix this 
+            println("weird concurrent modification bug");
+        }
+
     }
 
     public void onClick() {
@@ -205,9 +213,15 @@ class TextEntryBox extends MessageBox {
             }
         }
 
+
         text = textEntry.stream()
             .map(Object::toString)
             .collect(Collectors.joining());
+        // char[] textBoxChars = new char[textEntry.size()];
+        // for (int i = 0; i < textEntry.size(); i++) {
+        //     textBoxChars[i] = textEntry.get(i);
+        // }
+        // text = new String(textBoxChars);
 
         super.drawElement();
     }
@@ -428,4 +442,67 @@ class ButtonCombo extends UIElement {
         text("Encoding Method", x, y - boundingHeight + 10);
     }
     
+}
+
+class LoadingAnimation extends ButtonCombo {
+
+    int currentOnButton = 0;
+    int lastButtonTransition = 0;
+    final int ANIMATION_SPEED = 800;
+    boolean isLoadingDone = false;
+    int loadLength;
+    int loadStart;
+
+    // TODO: get better loading colors
+    color colorOff = color(0, 100, 100);
+    color colorOn = color(0, 255, 100);
+
+    CallableAction<LoadingAnimation> onDone = null;
+    String doneText = "TRANSMISSION DONE";
+
+    public LoadingAnimation(int x, int y, int z, int boundingWidth, int boundingHeight, int loadLength) {
+        super(x, y, z, boundingWidth, boundingHeight);
+        this.loadLength = loadLength;
+        loadStart = millis();
+    }
+
+    @Override
+    public void drawElement() {
+        if (isLoadingDone) {
+            fill(0, 255, 0);
+            textAlign(CENTER, BASELINE);
+            textFont(startFont, 24);
+            text(doneText, x, y);
+        } else {
+            ellipseMode(CENTER);
+            noStroke();
+            for (int i=0; i<3; i++) {
+                if (lightOn[i]) {
+                    fill(colorOn);
+                } else {
+                    fill(colorOff);
+                }
+                circle(x-circleSpacing + (i*circleSpacing), y, boundingHeight);
+            }
+
+            if (millis() - lastButtonTransition > ANIMATION_SPEED) {
+                lightOn[currentOnButton] = false;
+                currentOnButton = (currentOnButton+1) % 3;
+                lightOn[currentOnButton] = true;
+                lastButtonTransition = millis();
+            }
+
+            if (millis() - loadStart > loadLength)
+                finishLoading();        
+        }
+    }
+
+    private void finishLoading() {
+        if (onDone != null) {
+            onDone.doAction(this);
+        }
+
+        isLoadingDone = true;
+    }
+
 }

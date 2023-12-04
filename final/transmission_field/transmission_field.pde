@@ -65,6 +65,7 @@ void setup() {
     imageMode(CENTER);
     bgImage = loadImage("resources/background.jpg");
     startFont = createFont("resources/PressStart2P-Regular.ttf", 32);
+    // terminalFont = createFont("Monospaced.bold", 32, false);
     terminalFont = createFont("Bitstream Vera Sans", 32, false);
     gaugeSvg = loadShape("resources/gauge_2.svg");
 

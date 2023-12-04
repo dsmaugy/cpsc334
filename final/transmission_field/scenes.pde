@@ -80,10 +80,10 @@ void drawTransmissionScreen() {
     activePotGauge = potGauge;
     activeButtonCombo = buttonDisp;
 
-    char[] testChars = {'\u288B', '\u14D9', '\u146F', '\u13B2', '\u1306', '\u11DD', '\u10BE', 
+    char[] testChars = {'\u288B'+5, '\u14D9', '\u146F', '\u13B2', '\u1306', '\u11DD', '\u10BE', 
         '\u1029', '\u0FA7', '\u0E84', '\u0E01', '\u0DDC', '\u0B1E', '\u0992', '\u071C', 
         '\uF9AE', '\uF9B5', '\uF9C6', '\uF9BF', '\uFDFB', '\u231A'};
-    TextEntryBox entryBox = new TextEntryBox(txBox.x, txBox.y+190, 107, txBox.width-8, 400, color(6, 15, 6, 250), color(0, 255, 0), new String(testChars));
+    TextEntryBox entryBox = new TextEntryBox(txBox.x, txBox.y+190, 107, txBox.width-8, 400, color(10, 19, 10, 250), color(0, 255, 0), new String(testChars));
     entryBox.textFont = terminalFont;
     entryBox.xAlign = LEFT;
     entryBox.fontSize = 17;
@@ -123,5 +123,33 @@ void drawTransmissionScreen() {
 
 void drawTransmissionTransition() {
 
-    currentState = State.NAVIGATE;
+    MessageBox loadingBox = new MessageBox(width/2, height/2, 200, 2*height/5, 2*height/5, txScreenColor, color(255, 255, 255), "Submitting Transmission");
+    loadingBox.boxStroke = accentOne;
+
+    MessageBox closeButton = new MessageBox(loadingBox.x, loadingBox.y + loadingBox.height/2 - 60, 203, loadingBox.width-40, 40, color(80, 12, 38, 120), color(255, 255, 255), "Continue");
+    closeButton.isClickable = true;
+    closeButton.boxStroke = accentOne;
+    closeButton.hoverAction = (b1) -> {
+        b1.boxColor = accentOne;
+        b1.textColor = color(0, 0, 0);
+    };
+    closeButton.leaveAction = (b1) -> {
+        b1.boxColor = color(80, 12, 38, 120);
+        b1.textColor = color(255, 255, 255);
+    };
+    closeButton.clickAction = (b1) -> {
+        drawnElements.clear();
+        currentState = State.NAVIGATE;
+    };
+
+
+    LoadingAnimation dots = new LoadingAnimation(width/2, height/2, 201, 100, 20, 2000);    // TODO: change transmisison speed
+    dots.onDone = (e) -> {
+        drawnElements.add(closeButton);
+        lastTx = millis();
+    };
+
+    drawnElements.add(new Box(width/2, height/2, 99, width, height, mutedGrayColor)); // background mute
+    drawnElements.add(loadingBox);
+    drawnElements.add(dots);
 }
