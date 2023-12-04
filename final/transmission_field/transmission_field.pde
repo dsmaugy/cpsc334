@@ -40,7 +40,7 @@ Table txData;
 
 PImage bgImage;
 PFont startFont;
-PFont timesNewRoman;
+PFont terminalFont;
 PShape gaugeSvg;
 
 // draw elements in order of Z value, if tie, place smaller elements on top
@@ -65,7 +65,7 @@ void setup() {
     imageMode(CENTER);
     bgImage = loadImage("resources/background.jpg");
     startFont = createFont("resources/PressStart2P-Regular.ttf", 32);
-    timesNewRoman = createFont("Bitstream Vera Sans", 32, false);
+    terminalFont = createFont("Bitstream Vera Sans", 32, false);
     gaugeSvg = loadShape("resources/gauge_2.svg");
 
     loadTxFromCSV();
@@ -76,7 +76,7 @@ void setup() {
 
     println(sketchPath());
     println(Serial.list());    
-    println(PFont.list());
+    // println(PFont.list());
 }
 
 void draw() {

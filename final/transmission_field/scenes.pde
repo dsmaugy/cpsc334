@@ -83,20 +83,30 @@ void drawTransmissionScreen() {
     char[] testChars = {'\u288B', '\u14D9', '\u146F', '\u13B2', '\u1306', '\u11DD', '\u10BE', 
         '\u1029', '\u0FA7', '\u0E84', '\u0E01', '\u0DDC', '\u0B1E', '\u0992', '\u071C', 
         '\uF9AE', '\uF9B5', '\uF9C6', '\uF9BF', '\uFDFB', '\u231A'};
-    TextEntryBox entryBox = new TextEntryBox(txBox.x, txBox.y+190, 107, txBox.width-8, 400, color(0, 0, 0), color(0, 255, 0), new String(testChars));
-    entryBox.textFont = timesNewRoman;
+    TextEntryBox entryBox = new TextEntryBox(txBox.x, txBox.y+190, 107, txBox.width-8, 400, color(6, 15, 6, 250), color(0, 255, 0), new String(testChars));
+    entryBox.textFont = terminalFont;
     entryBox.xAlign = LEFT;
     entryBox.fontSize = 17;
-    // entryBox.boxStroke = color(255, 0, 0);
+    entryBox.boxStroke = color(124, 116, 118, 49);
     activeTextField = entryBox;
 
     MessageBox transmitButton = new MessageBox(width/2, ((txBox.y+txBox.height/2) + (entryBox.y + entryBox.height/2))/2, // halfway between terminal and box end
-        108, 300, 35, color(255, 100, 255), color(255, 255, 255), "TRANSMIT");
+        108, 300, 35, color(20, 255, 20, 180), color(255, 255, 255), "TRANSMIT");
     transmitButton.fontSize = 20;
     transmitButton.isClickable = true;
     transmitButton.boxStroke = accentOne;
     transmitButton.clickAction = (b1) -> {
         println("Transmission submitted!");
+        drawnElements.clear();
+        drawTransmissionTransition();
+    };
+    transmitButton.hoverAction = (b1) -> {
+        b1.boxColor = accentOne;
+        b1.textColor = color(0, 0, 0);
+    };
+    transmitButton.leaveAction = (b1) -> {
+        b1.boxColor = color(20, 255, 20, 180);
+        b1.textColor = color(255, 255, 255);
     };
 
     drawnElements.add(new Box(width/2, height/2, 99, width, height, mutedGrayColor)); // background mute
@@ -109,4 +119,9 @@ void drawTransmissionScreen() {
     drawnElements.add(buttonDisp);
     drawnElements.add(entryBox);
     drawnElements.add(transmitButton);
+}
+
+void drawTransmissionTransition() {
+
+    currentState = State.NAVIGATE;
 }
