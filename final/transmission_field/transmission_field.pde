@@ -65,7 +65,7 @@ void setup() {
     imageMode(CENTER);
     bgImage = loadImage("resources/background.jpg");
     startFont = createFont("resources/PressStart2P-Regular.ttf", 32);
-    timesNewRoman = createFont("Times New Roman Bold", 32, false);
+    timesNewRoman = createFont("Bitstream Vera Sans", 32, false);
     gaugeSvg = loadShape("resources/gauge_2.svg");
 
     loadTxFromCSV();
@@ -75,9 +75,8 @@ void setup() {
     // esp32.bufferUntil('\n');
 
     println(sketchPath());
-    println(Serial.list());
+    println(Serial.list());    
     println(PFont.list());
-    
 }
 
 void draw() {
