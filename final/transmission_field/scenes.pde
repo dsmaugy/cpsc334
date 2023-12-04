@@ -143,7 +143,7 @@ void drawTransmissionTransition() {
     };
 
 
-    LoadingAnimation dots = new LoadingAnimation(width/2, height/2, 201, 100, 20, 2000);    // TODO: change transmisison speed
+    LoadingAnimation dots = new LoadingAnimation(width/2, height/2, 201, 100, 20, 5000);    // TODO: change transmisison speed
     dots.onDone = (e) -> {
         drawnElements.add(closeButton);
         lastTx = millis();

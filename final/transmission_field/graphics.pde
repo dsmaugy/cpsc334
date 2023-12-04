@@ -454,8 +454,8 @@ class LoadingAnimation extends ButtonCombo {
     int loadStart;
 
     // TODO: get better loading colors
-    color colorOff = color(0, 100, 100);
-    color colorOn = color(0, 255, 100);
+    color colorOff = color(54, 63, 64);
+    color colorOn = color(107, 214, 219);
 
     CallableAction<LoadingAnimation> onDone = null;
     String doneText = "TRANSMISSION DONE";
