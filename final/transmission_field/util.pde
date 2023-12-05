@@ -10,11 +10,21 @@ void loadTxFromCSV() {
     for (TableRow row : txData.rows()) {
         transmissionList.add(new Transmission(row.getString("name"), row.getInt("x"), 
         row.getInt("y"), row.getString("msg"), row.getInt("buttons"), row.getInt("pot"), row.getFloat("dist")));
+        transmissionNames.add(row.getString("name"));
     }
 }
 
-void uploadTx(String message, int xCoord, int yCoord, int buttons, int dist, int pot) {
-    // TODO: save new Transmission object to transmission list and write to CSV
+void writeTxToCSV(Transmission tx) {
+    TableRow newEntry = txData.addRow();
+    newEntry.setString("name", tx.name);
+    newEntry.setInt("x", tx.fieldX);
+    newEntry.setInt("y", tx.fieldY);
+    newEntry.setInt("buttons", tx.buttonCombo);
+    newEntry.setInt("pot", tx.txPot);
+    newEntry.setFloat("dist", tx.txDist);
+    newEntry.setString("msg", tx.msg);
+    
+    saveTable(txData, "resources/transmissions.csv");
 }
 
 int getTxRadius(String msg) {
@@ -22,17 +32,27 @@ int getTxRadius(String msg) {
 }
 
 int sketchToFieldX(int sketchCoord) {
-
+    return (sketchCoord - (width/2)) + currentCenterX;
 }
 
 int sketchToFieldY(int sketchCoord) {
-
+    return (sketchCoord - (height/2)) + currentCenterY;
 }
 
 int fieldToSketchX(int fieldCoord) {
-
+    return (width/2) + ((FIELD_WIDTH/2) - fieldCoord);
 }
 
 int fieldToSketchY(int fieldCoord) {
-    
+    return (height/2) + ((FIELD_HEIGHT/2) - fieldCoord);
+}
+
+String getNewTxName() {
+    String potentialName = null;
+
+    while (potentialName == null || transmissionNames.contains(potentialName)) {
+        potentialName = "TX" + int(random(1000, 9999));
+    }
+
+    return potentialName;
 }

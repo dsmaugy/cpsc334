@@ -2,6 +2,7 @@ import processing.javafx.*;
 import processing.serial.*;
 
 import java.util.TreeSet;
+import java.util.HashSet;
 
 String serialPort = "COM3";
 
@@ -27,11 +28,10 @@ int lastTx = 0;
 boolean readyToTransmit = false; // should be initialized to true for prod
 
 // current transmission variables
-int buttonsVal = 0;
-int potVal = 0;
-float distVal = 0;
+int buttonsVal = -1;
+int potVal = -1;
+float distVal = -1;
 Transmission txToSend;
-int txToSendFieldX, txToSendFieldY;
 
 // transmission UI elements to update
 TextEntryBox activeTextField = null;
@@ -49,6 +49,7 @@ PShape gaugeSvg;
 // draw elements in order of Z value, if tie, place smaller elements on top
 TreeSet<UIElement> drawnElements = new TreeSet<>();
 ArrayList<Transmission> transmissionList = new ArrayList<>(); 
+HashSet<String> transmissionNames = new HashSet<>();
 
 Serial esp32;
 
@@ -85,7 +86,7 @@ void setup() {
 
 void draw() {
     // set background starfield in relation to larger canvas
-    image(bgImage, (width/2) + ((FIELD_WIDTH/2) - currentCenterX) , (height/2) + ((FIELD_HEIGHT/2) - currentCenterY));
+    image(bgImage, fieldToSketchX(currentCenterX) , fieldToSketchY(currentCenterY));
 
     // base UI drawing (don't include in drawnElements for efficiency)
     drawCoordinates();
@@ -97,8 +98,8 @@ void draw() {
 
     if (currentState == State.NAVIGATE) {
         moveBackground();
-        currentPosX = (mouseX - (width/2)) + currentCenterX;
-        currentPosY = (mouseY - (height/2)) + currentCenterY;
+        currentPosX = sketchToFieldX(mouseX);
+        currentPosY = sketchToFieldY(mouseY);
     }
 
     for (Transmission t : transmissionList) {

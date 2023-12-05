@@ -260,9 +260,9 @@ class Transmission extends UIElement {
 
     private String name;
 
-    private String msg;
-    private int buttonCombo, txPot;
-    private float txDist;
+    String msg;
+    int buttonCombo, txPot;
+    float txDist;
 
     // takes in field coords instead of sketch coords
     public Transmission(String name, int fieldX, int fieldY, String msg, int buttonCombo, int txPot, float txDist) {
@@ -279,8 +279,19 @@ class Transmission extends UIElement {
         this.txPot = txPot;
         this.txDist = txDist;
 
+        calcNumRings();
+    }
+
+    public void updateMsg(String msg) {
+        this.msg = msg;
+        this.r = getTxRadius(msg);
+        this.boundingWidth = this.boundingHeight = r*2;
+        calcNumRings();
+    }
+
+    private void calcNumRings() {
         // radius divided by the radius difference for each ring
-        maxNumRings = r / 10;
+        maxNumRings = (r+5) / 10;
         currentRingGlow = int(random(0, maxNumRings+1));
     }
 
@@ -345,7 +356,7 @@ class Transmission extends UIElement {
 
     @Override
     public String toString() {
-        return name + ": (" + fieldX + "," + fieldY + ")";
+        return name + ": (" + fieldX + "," + fieldY + ") -> r: " + r;
     }
 
     // need to override this to make sure we draw smaller transmissions on top 

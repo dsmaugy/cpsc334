@@ -54,6 +54,7 @@ void drawIntroScreen() {
 
 void drawTransmissionScreen() {
     currentState = State.TRANSMIT;
+    txToSend = new Transmission(getNewTxName(), currentPosX, currentPosY, "", 0, 0, 0);
 
     MessageBox txBox = new MessageBox(width/2, height/2, 100, 4*width/5, 7*height/8, txScreenColor, color(255, 0, 0), "Transmitter v2");
     txBox.boxStroke = accentOne;
@@ -81,9 +82,11 @@ void drawTransmissionScreen() {
     activePotGauge = potGauge;
     activeButtonCombo = buttonDisp;
 
-    char[] testChars = {'\u288B'+5, '\u14D9', '\u146F', '\u13B2', '\u1306', '\u11DD', '\u10BE', 
-        '\u1029', '\u0FA7', '\u0E84', '\u0E01', '\u0DDC', '\u0B1E', '\u0992', '\u071C', 
+    // issue chars: 0x13B2, 
+    char[] testChars = {'\u288B'+5, '\u14D9', '\u146F', '\u1306', '\u11DD', '\u10BE', 
+        '\u0FA7', '\u0E84', '\u0E01', '\u0DDC', '\u0B1E', '\u0992', '\u071C', 
         '\uF9AE', '\uF9B5', '\uF9C6', '\uF9BF', '\uFDFB', '\u231A'};
+    // char[] testChars = {'\u288B'+5, '\u14D9', '\u146F'};
     TextEntryBox entryBox = new TextEntryBox(txBox.x, txBox.y+190, 107, txBox.width-8, 400, color(10, 19, 10, 250), color(0, 255, 0), new String(testChars));
     entryBox.textFont = terminalFont;
     entryBox.xAlign = LEFT;
@@ -97,10 +100,16 @@ void drawTransmissionScreen() {
     transmitButton.isClickable = true;
     transmitButton.boxStroke = accentOne;
     transmitButton.clickAction = (b1) -> {
-        println("Transmission submitted!");
-        drawnElements.clear();
+        txToSend.updateMsg(entryBox.text);
+        txToSend.buttonCombo = buttonsVal;
+        txToSend.txPot = potVal;
+        txToSend.txDist = distVal;
+        transmissionNames.add(txToSend.name);
+        transmissionList.add(txToSend);
+        writeTxToCSV(txToSend);
+        println("Transmission submitted!: " + txToSend.toString());
 
-        txToSend = new Transmission();
+        drawnElements.clear();
         drawTransmissionTransition();
     };
     transmitButton.hoverAction = (b1) -> {
