@@ -35,6 +35,7 @@ Transmission txToSend;
 
 // transmission UI elements to update
 TextEntryBox activeTextField = null;
+DecodeBox activeDecodeField = null;
 SensorGauge activeDistGauge = null;
 SensorGauge activePotGauge = null;
 ButtonCombo activeButtonCombo = null;
@@ -54,7 +55,7 @@ HashSet<String> transmissionNames = new HashSet<>();
 Serial esp32;
 
 enum State {
-    INTRO, NAVIGATE, TRANSMIT;
+    INTRO, NAVIGATE, TRANSMIT, DECODE;
 }
 
 State currentState = State.INTRO;
@@ -69,8 +70,8 @@ void setup() {
     imageMode(CENTER);
     bgImage = loadImage("resources/background.jpg");
     startFont = createFont("resources/PressStart2P-Regular.ttf", 32);
-    // terminalFont = createFont("Monospaced.bold", 32, false);
-    terminalFont = createFont("Bitstream Vera Sans", 32, false);
+    // terminalFont = createFont("Liberation Serif", 32, false);
+    terminalFont = createFont("Bitstream Vera Sans", 32, true);
     gaugeSvg = loadShape("resources/gauge_2.svg");
 
     loadTxFromCSV();

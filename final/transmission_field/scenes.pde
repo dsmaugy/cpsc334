@@ -18,6 +18,12 @@ String txStepsText = """1. Input desired message
 5. Click TRANSMIT to activate transmission
 """;
 
+String decodeTxSteps = """1. Decipher the right 
+2. 
+3. 
+4. 
+""";
+
 
 // color(0, 0, 0);
 color accentOne = color(239, 225, 250);
@@ -59,7 +65,6 @@ void drawTransmissionScreen() {
     MessageBox txBox = new MessageBox(width/2, height/2, 100, 4*width/5, 7*height/8, txScreenColor, color(255, 0, 0), "Transmitter v2");
     txBox.boxStroke = accentOne;
 
-    // txBox.y - txBox.height/2 - 15
     CloseButton cb = new CloseButton(txBox.x + txBox.width/2, txBox.y - txBox.height/2, 101, 35, 35);
     cb.clickAction = (b1) -> {
         drawnElements.clear();
@@ -85,8 +90,10 @@ void drawTransmissionScreen() {
     // issue chars: 0x13B2, 
     char[] testChars = {'\u288B'+5, '\u14D9', '\u146F', '\u1306', '\u11DD', '\u10BE', 
         '\u0FA7', '\u0E84', '\u0E01', '\u0DDC', '\u0B1E', '\u0992', '\u071C', 
-        '\uF9AE', '\uF9B5', '\uF9C6', '\uF9BF', '\uFDFB', '\u231A'};
-    // char[] testChars = {'\u288B'+5, '\u14D9', '\u146F'};
+        '\uF9AE', '\uF9B5', '\uF9C6', '\uF9BF', '\uFDFB', '\u231A', 
+        '\uF9AE'+50, '\uF9B5'+20, '\uF9C6'+2, '\uF9BF'-50, '\uFDFB'-42, '\u231A'+23,
+        '\uF9AE'+55, '\uF9B5'+40, '\uF9C6'+21, '\uF9BF'-55, '\uFDFB'-72, '\u231A'-83};
+    // char[] testChars = {'\u288B'+5, '\u14D9', '\u146F', '\u1306', '\u11DD', '\u10BE'};
     TextEntryBox entryBox = new TextEntryBox(txBox.x, txBox.y+190, 107, txBox.width-8, 400, color(10, 19, 10, 250), color(0, 255, 0), new String(testChars));
     entryBox.textFont = terminalFont;
     entryBox.xAlign = LEFT;
@@ -164,4 +171,30 @@ void drawTransmissionTransition() {
     drawnElements.add(new Box(width/2, height/2, 99, width, height, mutedGrayColor)); // background mute
     drawnElements.add(loadingBox);
     drawnElements.add(dots);
+}
+
+void openTransmission(Transmission t) {
+    // TODO
+    currentState = State.DECODE;
+
+    MessageBox decodeBox = new MessageBox(width/2, height/2, 300, 4*width/5, 7*height/8, txScreenColor, color(255, 0, 0), "Receiver v2");
+    decodeBox.boxStroke = accentOne;
+
+    CloseButton cb = new CloseButton(decodeBox.x + decodeBox.width/2, decodeBox.y - decodeBox.height/2, 301, 35, 35);
+    cb.clickAction = (b1) -> {
+        drawnElements.clear();
+        currentState = State.NAVIGATE;
+    };
+
+    DecodeBox decodeTextBox = new DecodeBox(decodeBox.x, decodeBox.y+190, 307, decodeBox.width-8, 400, color(10, 19, 10, 250), color(0, 255, 0), t.msg);
+    decodeTextBox.textFont = terminalFont;
+    decodeTextBox.xAlign = LEFT;
+    decodeTextBox.fontSize = 17;
+    decodeTextBox.boxStroke = color(124, 116, 118, 49);
+    activeDecodeField = decodeTextBox;
+
+    drawnElements.add(new Box(width/2, height/2, 99, width, height, mutedGrayColor)); // background mute
+    drawnElements.add(decodeBox);
+    drawnElements.add(cb);
+    drawnElements.add(decodeTextBox);
 }

@@ -50,6 +50,14 @@ void keyTyped() {
             activeTextField.addChar(key);
         }   
     }
+
+    if (currentState == State.DECODE && activeDecodeField != null) {
+        if (key == 'k') {
+            activeDecodeField.addShift(-0x0100);
+        } else if (key == 'l') {
+            activeDecodeField.addShift(0x0100);
+        }
+    }
 }
 
 void serialEvent(Serial p) {

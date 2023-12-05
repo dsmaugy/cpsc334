@@ -157,6 +157,7 @@ class MessageBox extends Box {
         } catch (ConcurrentModificationException e) {
             // no idea why this happens, but it's rare
             // EDIT: version 21 of JAVAFX on linux seems to fix this 
+            // EDIT: nevermind
             println("weird concurrent modification bug");
         }
 
@@ -184,13 +185,46 @@ class MessageBox extends Box {
     }
 }
 
+class DecodeBox extends MessageBox {
+
+    char[] originalText;
+    int currentShift = 0;
+
+    public DecodeBox(int x, int y, int z, int width, int height, color boxColor, color textColor, String text) {
+        super(x, y, z, width, height, boxColor, textColor, text);
+        
+        originalText = new char[text.length()];
+        for (int i = 0; i < text.length(); i++) {
+            originalText[i] = text.charAt(i);
+        }
+    }
+
+    public void setShift(int newShift) {
+        if (currentShift != newShift) {
+            currentShift = newShift;
+
+            char[] shiftedText = new char[originalText.length];
+            for (int i = 0; i < shiftedText.length; i++) {
+                shiftedText[i] = (char)(originalText[i] + currentShift);
+            }
+
+            text = new String(shiftedText);
+        }
+    }
+
+    public void addShift(int n) {
+        setShift(currentShift+n);
+    }
+
+}
+
 class TextEntryBox extends MessageBox {
 
     boolean isCursorVisible = false;
     int cursorBlinkRate = 1000;
     int lastCursorBlink = 0;
 
-    LinkedList<Character> textEntry; 
+    LinkedList<Character> textEntry;
 
     public TextEntryBox(int x, int y, int z, int width, int height, color boxColor, color textColor, String text) {
         super(x, y, z, width, height, boxColor, textColor, text);
@@ -217,11 +251,6 @@ class TextEntryBox extends MessageBox {
         text = textEntry.stream()
             .map(Object::toString)
             .collect(Collectors.joining());
-        // char[] textBoxChars = new char[textEntry.size()];
-        // for (int i = 0; i < textEntry.size(); i++) {
-        //     textBoxChars[i] = textEntry.get(i);
-        // }
-        // text = new String(textBoxChars);
 
         super.drawElement();
     }
@@ -236,6 +265,7 @@ class TextEntryBox extends MessageBox {
         if (lastCharIdx >= 0)
             textEntry.remove(lastCharIdx);
     }
+    
 }
 
 class Transmission extends UIElement {
@@ -304,6 +334,12 @@ class Transmission extends UIElement {
     public boolean pointInsideElement(int x, int y) {
         return (x >= this.x-r && x <= this.x+r
         && y >= this.y-r && y <= this.y+r);
+    }
+
+    @Override
+    public void onClick() {
+        super.onClick();
+        openTransmission(this);
     }
 
     @Override
