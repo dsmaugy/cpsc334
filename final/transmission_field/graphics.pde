@@ -207,7 +207,7 @@ class DecodeBox extends MessageBox {
             for (int i = 0; i < shiftedText.length; i++) {
                 shiftedText[i] = (char)(originalText[i] + currentShift);
             }
-
+            
             text = new String(shiftedText);
         }
     }
