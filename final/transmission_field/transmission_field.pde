@@ -141,6 +141,7 @@ void updateTxReady() {
     textSize(24);
     textAlign(RIGHT, BASELINE);
     fill(255, 255, 255, 255);
+    textFont(startFont);
     text("Transmitter Status: ", width-textWidth("READY"), height-45);
 
     if (millis() - lastTx > TX_COOLDOWN) {

@@ -18,10 +18,10 @@ String txStepsText = """1. Input desired message
 5. Click TRANSMIT to activate transmission
 """;
 
-String decodeTxSteps = """1. Decipher the right 
-2. 
-3. 
-4. 
+String decodeTxSteps = """1. Choose the right encoding mode to make the text visible 
+2. Adjust the signal attenuation to get the right set of characters
+3. Adjust the broadcast frequency to put the characters in the right order
+4. When all parameters are correct, hit CAPTURE to download message to the terminal 
 """;
 
 
@@ -174,7 +174,6 @@ void drawTransmissionTransition() {
 }
 
 void openTransmission(Transmission t) {
-    // TODO
     currentState = State.DECODE;
 
     MessageBox decodeBox = new MessageBox(width/2, height/2, 300, 4*width/5, 7*height/8, txScreenColor, color(255, 0, 0), "Receiver v2");
@@ -186,6 +185,21 @@ void openTransmission(Transmission t) {
         currentState = State.NAVIGATE;
     };
 
+    MessageBox decodeDesc = new MessageBox(decodeBox.x, decodeBox.y-decodeBox.height/2+100, 302, decodeBox.width, 60, transparentColor, color(255, 255, 255), "Decoding Steps:");
+    decodeDesc.fontSize = 15;
+
+    // debugging color
+    MessageBox decodeSteps = new MessageBox(decodeBox.x, decodeDesc.y+70, 303, decodeBox.width, 120, transparentColor, color(255, 255, 255), decodeTxSteps);
+    decodeSteps.fontSize = 15;
+    decodeSteps.xAlign = LEFT;
+
+    SensorGauge distGauge = new SensorGauge(width/2, decodeSteps.y+decodeSteps.height+55, 304, 196, 90, "Signal Attenuator", "dB");
+    SensorGauge potGauge = new SensorGauge(3*width/4, decodeSteps.y+decodeSteps.height+55, 305, 196, 90, "Signal Frequency", "kHz");
+    ButtonCombo buttonDisp = new ButtonCombo(width/4, decodeSteps.y+decodeSteps.height+55, 306, 370, 80);
+    activeDistGauge = distGauge;
+    activePotGauge = potGauge;
+    activeButtonCombo = buttonDisp;
+
     DecodeBox decodeTextBox = new DecodeBox(decodeBox.x, decodeBox.y+190, 307, decodeBox.width-8, 400, color(10, 19, 10, 250), color(0, 255, 0), t.msg);
     decodeTextBox.textFont = terminalFont;
     decodeTextBox.xAlign = LEFT;
@@ -196,5 +210,10 @@ void openTransmission(Transmission t) {
     drawnElements.add(new Box(width/2, height/2, 99, width, height, mutedGrayColor)); // background mute
     drawnElements.add(decodeBox);
     drawnElements.add(cb);
+    drawnElements.add(distGauge);
+    drawnElements.add(potGauge);
+    drawnElements.add(buttonDisp);
+    drawnElements.add(decodeDesc);
+    drawnElements.add(decodeSteps);
     drawnElements.add(decodeTextBox);
 }
