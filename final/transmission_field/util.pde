@@ -9,7 +9,7 @@ void loadTxFromCSV() {
 
     for (TableRow row : txData.rows()) {
         transmissionList.add(new Transmission(row.getString("name"), row.getInt("x"), 
-        row.getInt("y"), getTxRadius(row.getString("msg"))));
+        row.getInt("y"), row.getString("msg"), row.getInt("buttons"), row.getInt("pot"), row.getFloat("dist")));
     }
 }
 
@@ -19,4 +19,20 @@ void uploadTx(String message, int xCoord, int yCoord, int buttons, int dist, int
 
 int getTxRadius(String msg) {
     return int(map(msg.length(), 1, 700, 15, 60));
+}
+
+int sketchToFieldX(int sketchCoord) {
+
+}
+
+int sketchToFieldY(int sketchCoord) {
+
+}
+
+int fieldToSketchX(int fieldCoord) {
+
+}
+
+int fieldToSketchY(int fieldCoord) {
+    
 }

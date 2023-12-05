@@ -29,7 +29,10 @@ boolean readyToTransmit = false; // should be initialized to true for prod
 // current transmission variables
 int buttonsVal = 0;
 int potVal = 0;
-int distVal = 0;
+float distVal = 0;
+Transmission txToSend;
+int txToSendFieldX, txToSendFieldY;
+
 // transmission UI elements to update
 TextEntryBox activeTextField = null;
 SensorGauge activeDistGauge = null;

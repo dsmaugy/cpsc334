@@ -21,7 +21,7 @@ void loop() {
   }
 
   // explicitly do not send carriage returns
-  Serial.print("DIST:" + String(getDistance()) + "\n" );
+  // Serial.print("DIST:" + String(getDistance()) + "\n" );
   Serial.print("POT:" + String(analogRead(POT_PIN)) + "\n");
 }
 

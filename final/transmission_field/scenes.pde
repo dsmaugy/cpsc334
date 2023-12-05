@@ -54,6 +54,7 @@ void drawIntroScreen() {
 
 void drawTransmissionScreen() {
     currentState = State.TRANSMIT;
+
     MessageBox txBox = new MessageBox(width/2, height/2, 100, 4*width/5, 7*height/8, txScreenColor, color(255, 0, 0), "Transmitter v2");
     txBox.boxStroke = accentOne;
 
@@ -98,6 +99,8 @@ void drawTransmissionScreen() {
     transmitButton.clickAction = (b1) -> {
         println("Transmission submitted!");
         drawnElements.clear();
+
+        txToSend = new Transmission();
         drawTransmissionTransition();
     };
     transmitButton.hoverAction = (b1) -> {

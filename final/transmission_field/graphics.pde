@@ -260,15 +260,24 @@ class Transmission extends UIElement {
 
     private String name;
 
+    private String msg;
+    private int buttonCombo, txPot;
+    private float txDist;
+
     // takes in field coords instead of sketch coords
-    public Transmission(String name, int fieldX, int fieldY, int r) {
-        super(0, 0, totalNumTransmissions * -1, r*2, r*2); // placeholder x, y coords
+    public Transmission(String name, int fieldX, int fieldY, String msg, int buttonCombo, int txPot, float txDist) {
+        super(0, 0, totalNumTransmissions * -1, getTxRadius(msg)*2, getTxRadius(msg)*2); // placeholder x, y coords
         totalNumTransmissions++;
         this.fieldX = fieldX;
         this.fieldY = fieldY;
-        this.r = r;
+        this.r = getTxRadius(msg);
         this.name = name;
         isClickable = true;
+
+        this.msg = msg;
+        this.buttonCombo = buttonCombo;
+        this.txPot = txPot;
+        this.txDist = txDist;
 
         // radius divided by the radius difference for each ring
         maxNumRings = r / 10;
