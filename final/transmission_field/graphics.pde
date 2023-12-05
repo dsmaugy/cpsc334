@@ -453,7 +453,6 @@ class LoadingAnimation extends ButtonCombo {
     int loadLength;
     int loadStart;
 
-    // TODO: get better loading colors
     color colorOff = color(54, 63, 64);
     color colorOn = color(107, 214, 219);
 

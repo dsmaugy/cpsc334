@@ -88,21 +88,8 @@ void draw() {
     drawCoordinates();
     updateTxReady();
     
-    for (Transmission t : transmissionList) {
-        if (t.transmissionVisible() && !drawnElements.contains(t)) {
-            drawnElements.add(t);
-            
-        } else if (drawnElements.contains(t) && !t.transmissionVisible()) { // smart short circuit for efficiency
-            drawnElements.remove(t);
-        }
-    }
-
     if (currentState == State.TRANSMIT) {
         updateSenorValues();
-    }
-
-    for (UIElement e : drawnElements) {
-        e.drawElement();
     }
 
     if (currentState == State.NAVIGATE) {
@@ -110,59 +97,17 @@ void draw() {
         currentPosX = (mouseX - (width/2)) + currentCenterX;
         currentPosY = (mouseY - (height/2)) + currentCenterY;
     }
-}
 
-void mouseMoved() {
-    boolean onClickableElement = false;
-    boolean hoveredElementToggled = false; // so we don't double hover
-    
-    for (UIElement e : drawnElements.descendingSet()) {
-        if (e.pointInsideElement(mouseX, mouseY) && !hoveredElementToggled) {
-
-            if (e.isClickable) {
-                onClickableElement = true;
-            }
-
-            if (e.hoverJustEntered) {
-                e.onEnter();
-            }
-            e.onHover();
-            hoveredElementToggled = true;
-        } else if (e.hoverIn) {
-            e.onLeave();
+    for (Transmission t : transmissionList) {
+        if (t.transmissionVisible() && !drawnElements.contains(t)) {
+            drawnElements.add(t);
+        } else if (drawnElements.contains(t) && !t.transmissionVisible()) { // smart short circuit for efficiency
+            drawnElements.remove(t);
         }
     }
 
-    if (onClickableElement) {
-        cursor(HAND);
-    } else {
-        cursor(ARROW);
-    }
-}
-
-void mousePressed() {
-    boolean clickedOnElement = false;
-    for (UIElement e : drawnElements.descendingSet()) {
-        if (e.pointInsideElement(mouseX, mouseY)) {
-            clickedOnElement = true;
-            e.onClick();
-            break;
-        }
-    }
-
-    if (!clickedOnElement && currentState == State.NAVIGATE) {
-        drawTransmissionScreen();
-    }
-}
-
-void keyTyped() {
-    if (currentState == State.TRANSMIT && activeTextField != null) {
-        if (key == BACKSPACE) {
-            if (activeTextField.text.length() > 0)
-                activeTextField.removeChar(); 
-        } else {
-            activeTextField.addChar(key);
-        }   
+    for (UIElement e : drawnElements) {
+        e.drawElement();
     }
 }
 
