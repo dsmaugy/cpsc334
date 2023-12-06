@@ -70,8 +70,8 @@ void setup() {
     imageMode(CENTER);
     bgImage = loadImage("resources/background.jpg");
     startFont = createFont("resources/PressStart2P-Regular.ttf", 32);
-    // terminalFont = createFont("Liberation Serif", 32, false);
-    terminalFont = createFont("Bitstream Vera Sans", 32, true);
+    terminalFont = createFont("Lucida Console", 32, false);
+    // terminalFont = createFont("Bitstream Vera Sans", 32, true);
     gaugeSvg = loadShape("resources/gauge_2.svg");
 
     loadTxFromCSV();
