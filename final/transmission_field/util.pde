@@ -1,7 +1,7 @@
 
 
 void printTxToReceipt(Transmission tx) {
-    // TODO use exec here to call python program
+    exec("python3", "scripts/print_receipt.py");
 }
 
 void loadTxFromCSV() {

@@ -113,8 +113,10 @@ void drawTransmissionScreen() {
         txToSend.txDist = distVal;
         transmissionNames.add(txToSend.name);
         transmissionList.add(txToSend);
-        writeTxToCSV(txToSend);
         println("Transmission submitted!: " + txToSend.toString());
+
+        writeTxToCSV(txToSend);
+        printTxToReceipt(txToSend);
 
         drawnElements.clear();
         drawTransmissionTransition();

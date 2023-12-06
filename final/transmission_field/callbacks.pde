@@ -29,7 +29,7 @@ void mouseMoved() {
 void mousePressed() {
     boolean clickedOnElement = false;
     for (UIElement e : drawnElements.descendingSet()) {
-        if (e.pointInsideElement(mouseX, mouseY)) {
+        if (e.pointInsideElement(mouseX, mouseY) && e.isClickable) {
             clickedOnElement = true;
             e.onClick();
             break;
