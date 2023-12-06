@@ -204,7 +204,7 @@ void openTransmission(Transmission t) {
 
     DecodeBox decodeTextBox = new DecodeBox(decodeBox.x, decodeBox.y+190, 307, decodeBox.width-8, 400, color(10, 19, 10, 250), color(0, 255, 0), t.msg);
     decodeTextBox.textFont = terminalFont;
-    decodeTextBox.xAlign = LEFT;
+    decodeTextBox.xAlign = CENTER;
     decodeTextBox.fontSize = 17;
     decodeTextBox.boxStroke = color(124, 116, 118, 49);
     activeDecodeField = decodeTextBox;
