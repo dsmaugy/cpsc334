@@ -209,11 +209,12 @@ class DecodeBox extends MessageBox {
     public void shiftText() {
         int atten = getAttenuation(distVal);
         int freq = getFrequency(potVal);
+        println("Atten: " + atten + " (" + distVal + ")" + " Freq: " + freq + " (" + potVal + ")");
         if (currentAtten != atten || currentFreq != freq) {
             currentAtten = atten;
             currentFreq = freq;
 
-            println("Atten: " + atten + " Freq: " + freq);
+            // println("Atten: " + atten + " (" + distVal + ")" + " Freq: " + freq + " (" + potVal + ")");
             boolean attenMatch = abs(atten - getAttenuation(tx.txDist)) <= attenThresh ? true : false;
             boolean freqMatch = abs(freq - getFrequency(tx.txPot)) <= freqThresh ? true : false;
 
@@ -221,6 +222,10 @@ class DecodeBox extends MessageBox {
                 text = new String(originalText);
                 return;
             } 
+
+            if (attenMatch) {
+                println("NO WAY!");
+            }
 
             char[] shiftedText = new char[min(originalText.length, 50)];
             for (int i = 0; i < shiftedText.length; i++) {

@@ -40,9 +40,9 @@ int lastTx = 0;
 boolean readyToTransmit = false; // should be initialized to true for prod
 
 // current transmission variables
-int buttonsVal = -1;
-int potVal = -1;
-float distVal = -1;
+int buttonsVal = 0;
+int potVal = 0;
+float distVal = 0;
 Transmission txToSend;
 
 // transmission UI elements to update

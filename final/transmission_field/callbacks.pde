@@ -53,9 +53,13 @@ void keyTyped() {
 
     if (currentState == State.DECODE && activeDecodeField != null) {
         if (key == 'k') {
-            distVal += 1;
+            distVal += -1;
         } else if (key == 'l') {
-            distVal -= 1;
+            distVal += 1;
+        } else if(key == 'o') {
+            potVal += -1;
+        } else if (key == 'p') {
+            potVal += 1;
         }
     }
 }
