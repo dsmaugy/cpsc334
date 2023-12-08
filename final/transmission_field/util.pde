@@ -18,6 +18,7 @@ int getFrequency(int pot) {
     return int(map(pot, 0, 4095, MIN_FREQ, MAX_FREQ));
 }
 
+// TODO: ensure this is right
 int getAttenuation(float dist) {
     return constrain(int(map(dist, MIN_DIST, MAX_DIST, MAX_ATTEN, MIN_ATTEN)), MIN_ATTEN, MAX_ATTEN);
 }

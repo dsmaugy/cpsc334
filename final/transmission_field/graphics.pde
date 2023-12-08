@@ -189,13 +189,17 @@ class DecodeBox extends MessageBox {
 
     char[] originalText;
     int currentAtten = 0;
+    int currentFreq = 0;
 
     int attenThresh = 0;
     int freqThresh = 2;
 
+    private Transmission tx;
+
     public DecodeBox(int x, int y, int z, int width, int height, color boxColor, color textColor, Transmission tx) {
         super(x, y, z, width, height, boxColor, textColor, tx.msg);
-        
+        this.tx = tx;
+
         originalText = new char[tx.msg.length()];
         for (int i = 0; i < tx.msg.length(); i++) {
             originalText[i] = tx.msg.charAt(i);
@@ -205,20 +209,22 @@ class DecodeBox extends MessageBox {
     public void shiftText() {
         int atten = getAttenuation(distVal);
         int freq = getFrequency(potVal);
-        if (currentAtten != atten) {
+        if (currentAtten != atten || currentFreq != freq) {
             currentAtten = atten;
+            currentFreq = freq;
 
+            println("Atten: " + atten + " Freq: " + freq);
             boolean attenMatch = abs(atten - getAttenuation(tx.txDist)) <= attenThresh ? true : false;
             boolean freqMatch = abs(freq - getFrequency(tx.txPot)) <= freqThresh ? true : false;
 
             if (attenMatch && freqMatch) {
                 text = new String(originalText);
                 return;
-            }
+            } 
 
             char[] shiftedText = new char[min(originalText.length, 50)];
             for (int i = 0; i < shiftedText.length; i++) {
-                shiftedText[i] = (char)(originalText[i] + unicodeGroups[abs((i + atten) % unicodeGroups.length)]);
+                shiftedText[i] = (char)(originalText[i] + unicodeGroups[attenMatch ? 0 : abs((i + atten) % unicodeGroups.length)]); // TODO: factor in pot here
             }
             
             text = new String(shiftedText);
