@@ -209,6 +209,30 @@ void openTransmission(Transmission t) {
     decodeTextBox.boxStroke = color(124, 116, 118, 49);
     activeDecodeField = decodeTextBox;
 
+    MessageBox captureButton = new MessageBox(width/2, ((decodeBox.y+decodeBox.height/2) + (decodeTextBox.y + decodeTextBox.height/2))/2, // halfway between terminal and box end
+        308, 300, 35, color(20, 255, 20, 180), color(255, 255, 255), "CAPTURE");
+    captureButton.fontSize = 20;
+    captureButton.isClickable = false;
+    captureButton.boxStroke = accentOne;
+    captureButton.clickAction = (b1) -> {
+        if (b1.isClickable) {
+            drawnElements.clear();
+            currentState = State.NAVIGATE;
+        }
+    };
+    captureButton.hoverAction = (b1) -> {
+        if (b1.isClickable) {
+            b1.boxColor = accentOne;
+            b1.textColor = color(0, 0, 0);
+        }
+    };
+    captureButton.leaveAction = (b1) -> {
+        if (b1.isClickable) {
+            b1.boxColor = color(20, 255, 20, 180);
+            b1.textColor = color(255, 255, 255);
+        }
+    };
+
     drawnElements.add(new Box(width/2, height/2, 99, width, height, mutedGrayColor)); // background mute
     drawnElements.add(decodeBox);
     drawnElements.add(cb);
@@ -218,4 +242,5 @@ void openTransmission(Transmission t) {
     drawnElements.add(decodeDesc);
     drawnElements.add(decodeSteps);
     drawnElements.add(decodeTextBox);
+    drawnElements.add(captureButton);
 }

@@ -131,6 +131,7 @@ void moveBackground() {
 }
 
 void drawCoordinates() {
+    textFont(startFont);
     textSize(28);
     textAlign(LEFT, BASELINE);
     fill(255, 255, 255, 255);
@@ -138,10 +139,10 @@ void drawCoordinates() {
 }
 
 void updateTxReady() {
-    textSize(24);
     textAlign(RIGHT, BASELINE);
     fill(255, 255, 255, 255);
     textFont(startFont);
+    textSize(24);
     text("Transmitter Status: ", width-textWidth("READY"), height-45);
 
     if (millis() - lastTx > TX_COOLDOWN) {
