@@ -190,6 +190,9 @@ class DecodeBox extends MessageBox {
     char[] originalText;
     int currentAtten = 0;
 
+    int attenThresh = 0;
+    int freqThresh = 2;
+
     public DecodeBox(int x, int y, int z, int width, int height, color boxColor, color textColor, Transmission tx) {
         super(x, y, z, width, height, boxColor, textColor, tx.msg);
         
@@ -200,11 +203,20 @@ class DecodeBox extends MessageBox {
     }
 
     public void shiftText() {
-        int atten = getAttenuation();
+        int atten = getAttenuation(distVal);
+        int freq = getFrequency(potVal);
         if (currentAtten != atten) {
             currentAtten = atten;
 
-            char[] shiftedText = new char[originalText.length];
+            boolean attenMatch = abs(atten - getAttenuation(tx.txDist)) <= attenThresh ? true : false;
+            boolean freqMatch = abs(freq - getFrequency(tx.txPot)) <= freqThresh ? true : false;
+
+            if (attenMatch && freqMatch) {
+                text = new String(originalText);
+                return;
+            }
+
+            char[] shiftedText = new char[min(originalText.length, 50)];
             for (int i = 0; i < shiftedText.length; i++) {
                 shiftedText[i] = (char)(originalText[i] + unicodeGroups[abs((i + atten) % unicodeGroups.length)]);
             }

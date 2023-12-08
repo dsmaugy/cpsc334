@@ -172,8 +172,8 @@ void updateTxReady() {
 
 void updateSenorValues() {
     activeDistGauge.setAngle(constrain(map(distVal, MIN_DIST, MAX_DIST, 180, 0), 0, 180));
-    activeDistGauge.setValue(getAttenuation());
+    activeDistGauge.setValue(getAttenuation(distVal));
 
     activePotGauge.setAngle(min(map(potVal, 0, 4095, 0, 180), 180));
-    activePotGauge.setValue(getFrequency());
+    activePotGauge.setValue(getFrequency(potVal));
 }
