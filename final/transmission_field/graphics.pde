@@ -190,12 +190,12 @@ class DecodeBox extends MessageBox {
     char[] originalText;
     int currentShift = 0;
 
-    public DecodeBox(int x, int y, int z, int width, int height, color boxColor, color textColor, String text) {
-        super(x, y, z, width, height, boxColor, textColor, text);
+    public DecodeBox(int x, int y, int z, int width, int height, color boxColor, color textColor, Transmission tx) {
+        super(x, y, z, width, height, boxColor, textColor, tx.msg);
         
-        originalText = new char[text.length()];
-        for (int i = 0; i < text.length(); i++) {
-            originalText[i] = text.charAt(i);
+        originalText = new char[tx.msg.length()];
+        for (int i = 0; i < tx.msg.length(); i++) {
+            originalText[i] = tx.msg.charAt(i);
         }
     }
 
@@ -205,7 +205,7 @@ class DecodeBox extends MessageBox {
 
             char[] shiftedText = new char[originalText.length];
             for (int i = 0; i < shiftedText.length; i++) {
-                shiftedText[i] = (char)(originalText[i] + currentShift);
+                shiftedText[i] = (char)(originalText[i] + unicodeGroups[abs((i + newShift) % unicodeGroups.length)]);
             }
             
             text = new String(shiftedText);

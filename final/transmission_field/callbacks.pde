@@ -53,9 +53,9 @@ void keyTyped() {
 
     if (currentState == State.DECODE && activeDecodeField != null) {
         if (key == 'k') {
-            activeDecodeField.addShift(-0x0100);
+            activeDecodeField.addShift(1);
         } else if (key == 'l') {
-            activeDecodeField.addShift(0x0100);
+            activeDecodeField.addShift(-1);
         }
     }
 }

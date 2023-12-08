@@ -14,6 +14,14 @@ void loadTxFromCSV() {
     }
 }
 
+int getFrequency() {
+    return int(map(potVal, 0, 4095, MIN_FREQ, MAX_FREQ));
+}
+
+int getAttenuation() {
+    return constrain(int(map(distVal, MIN_DIST, MAX_DIST, 20, 0)), 0, 20);
+}
+
 void writeTxToCSV(Transmission tx) {
     TableRow newEntry = txData.addRow();
     newEntry.setString("name", tx.name);

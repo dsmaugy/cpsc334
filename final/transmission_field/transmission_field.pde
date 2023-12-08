@@ -6,6 +6,16 @@ import java.util.HashSet;
 
 String serialPort = "COM3";
 
+final char[] unicodeGroups = {'\u0000', '\u0400', '\u0590', '\u0600', '\u0980', '\u0A80', 
+'\u0B80', '\u0E80', '\u1400', '\u1780', '\u0400', '\u20A0', '\u20D0', 
+'\u2460', '\u2500', '\u2701', '\u2800', '\u31A0', '\u2190'};
+
+// transmission parameters
+final int MAX_FREQ = 100;
+final int MIN_FREQ = 20;
+final int MIN_DIST = 0;
+final int MAX_DIST = 40;
+
 // field/window size
 final int FIELD_WIDTH = 4000;
 final int FIELD_HEIGHT = 4000;
@@ -159,9 +169,9 @@ void updateTxReady() {
 }
 
 void updateSenorValues() {
-    activeDistGauge.setAngle(max(map(distVal, 0, 80, 180, 0), 0));
-    activeDistGauge.setValue(int(max(map(distVal, 0, 200, 20, 0), 0)));
+    activeDistGauge.setAngle(constrain(map(distVal, MIN_DIST, MAX_DIST, 180, 0), 0, 180));
+    activeDistGauge.setValue(getAttenuation());
 
     activePotGauge.setAngle(min(map(potVal, 0, 4095, 0, 180), 180));
-    activePotGauge.setValue(int(min(map(potVal, 0, 4095, 20, 100), 20000)));
+    activePotGauge.setValue(getFrequency());
 }

@@ -202,7 +202,7 @@ void openTransmission(Transmission t) {
     activePotGauge = potGauge;
     activeButtonCombo = buttonDisp;
 
-    DecodeBox decodeTextBox = new DecodeBox(decodeBox.x, decodeBox.y+190, 307, decodeBox.width-8, 400, color(10, 19, 10, 250), color(0, 255, 0), t.msg);
+    DecodeBox decodeTextBox = new DecodeBox(decodeBox.x, decodeBox.y+190, 307, decodeBox.width-8, 400, color(10, 19, 10, 250), color(0, 255, 0), t);
     decodeTextBox.textFont = terminalFont;
     decodeTextBox.xAlign = CENTER;
     decodeTextBox.fontSize = 17;
