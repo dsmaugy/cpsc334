@@ -188,7 +188,7 @@ class MessageBox extends Box {
 class DecodeBox extends MessageBox {
 
     char[] originalText;
-    int currentShift = 0;
+    int currentAtten = 0;
 
     public DecodeBox(int x, int y, int z, int width, int height, color boxColor, color textColor, Transmission tx) {
         super(x, y, z, width, height, boxColor, textColor, tx.msg);
@@ -199,23 +199,26 @@ class DecodeBox extends MessageBox {
         }
     }
 
-    public void setShift(int newShift) {
-        if (currentShift != newShift) {
-            currentShift = newShift;
+    public void shiftText() {
+        int atten = getAttenuation();
+        if (currentAtten != atten) {
+            currentAtten = atten;
 
             char[] shiftedText = new char[originalText.length];
             for (int i = 0; i < shiftedText.length; i++) {
-                shiftedText[i] = (char)(originalText[i] + unicodeGroups[abs((i + newShift) % unicodeGroups.length)]);
+                shiftedText[i] = (char)(originalText[i] + unicodeGroups[abs((i + atten) % unicodeGroups.length)]);
             }
             
             text = new String(shiftedText);
         }
     }
 
-    public void addShift(int n) {
-        setShift(currentShift+n);
-    }
 
+    @Override
+    public void drawElement() {
+        shiftText();
+        super.drawElement();
+    }
 }
 
 class TextEntryBox extends MessageBox {

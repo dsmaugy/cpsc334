@@ -19,7 +19,7 @@ int getFrequency() {
 }
 
 int getAttenuation() {
-    return constrain(int(map(distVal, MIN_DIST, MAX_DIST, 20, 0)), 0, 20);
+    return constrain(int(map(distVal, MIN_DIST, MAX_DIST, MAX_ATTEN, MIN_ATTEN)), MIN_ATTEN, MAX_ATTEN);
 }
 
 void writeTxToCSV(Transmission tx) {

@@ -15,6 +15,8 @@ final int MAX_FREQ = 100;
 final int MIN_FREQ = 20;
 final int MIN_DIST = 0;
 final int MAX_DIST = 40;
+final int MIN_ATTEN = -10;
+final int MAX_ATTEN = 10;
 
 // field/window size
 final int FIELD_WIDTH = 4000;
