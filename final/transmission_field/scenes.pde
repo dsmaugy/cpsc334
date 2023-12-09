@@ -226,6 +226,7 @@ void openTransmission(Transmission t) {
     DecodeBox decodeTextBox = new DecodeBox(decodeBox.x, decodeBox.y+190, 307, decodeBox.width-8, 400, color(10, 19, 10, 250), color(0, 255, 0), t, captureButton);
     decodeTextBox.textFont = terminalFont;
     decodeTextBox.xAlign = CENTER;
+    decodeTextBox.yAlign = CENTER;
     decodeTextBox.fontSize = 17;
     decodeTextBox.boxStroke = color(124, 116, 118, 49);
     activeDecodeField = decodeTextBox;
@@ -246,6 +247,13 @@ void decodeDone(Transmission t) {
     MessageBox outerBox = new MessageBox(width/2, height/2, 400, 4*width/5, 7*height/8, txScreenColor, color(0, 255, 0), "Receive Successful!");
     outerBox.boxStroke = accentOne;
 
+    MessageBoxAnimated displayBox = new MessageBoxAnimated(outerBox.x, outerBox.y, 401, outerBox.width-8, 400, t.msg);
+    displayBox.textFont = terminalFont;
+    displayBox.xAlign = CENTER;
+    displayBox.yAlign = CENTER;
+    displayBox.fontSize = 17;
+    displayBox.boxStroke = color(124, 116, 118, 49);
+
     MessageBox yesButton = new MessageBox((outerBox.x - outerBox.width/2) + (outerBox.width/3), (outerBox.y + outerBox.height/2) - 60,
         402, 200, 35, color(0, 255, 0), color(255, 255, 255), "YES");
     yesButton.boxStroke = accentOne;
@@ -261,6 +269,7 @@ void decodeDone(Transmission t) {
     yesButton.clickAction = (b1) -> {
         drawnElements.clear();
         currentState = State.NAVIGATE;
+        printTxToReceipt(t);
     };
 
     MessageBox noButton = new MessageBox((outerBox.x - outerBox.width/2) + (2*outerBox.width/3), yesButton.y,
@@ -280,8 +289,12 @@ void decodeDone(Transmission t) {
         currentState = State.NAVIGATE;
     };
 
+    displayBox.onDone = (b1) -> {
+        drawnElements.add(yesButton);
+        drawnElements.add(noButton);
+    };
+
     drawnElements.add(new Box(width/2, height/2, 99, width, height, mutedGrayColor)); // background mute
     drawnElements.add(outerBox);
-    drawnElements.add(yesButton);
-    drawnElements.add(noButton);
+    drawnElements.add(displayBox);
 }

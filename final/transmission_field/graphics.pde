@@ -188,15 +188,44 @@ class MessageBox extends Box {
 class MessageBoxAnimated extends MessageBox {
 
     char[] originalText;
+    char[] displayText;
     int currentVisibleIndex = 0;
+
+    // TODO: adjust timings for production
+    final int NEXT_LETTER_TIME = 10;
+    final int LETTER_FLICKER_TIME = 5;
+    int lastLetterTime = 0;
+    int lastFlickerTime = 0;
+
+    CallableAction<MessageBoxAnimated> onDone = null; 
 
     public MessageBoxAnimated(int x, int y, int z, int width, int height, String text) {
         super(x, y, z, width, height, color(10, 19, 10, 250), color(0, 255, 0), text);
+        originalText = Arrays.copyOf(text.toCharArray(), text.length());
+        displayText = new char[text.length()];
+        Arrays.fill(displayText, 'a');
     }
 
     @Override
     public void drawElement() {
-        // TODO: animate text
+        if (currentVisibleIndex < originalText.length) {
+            if (millis() - lastFlickerTime > LETTER_FLICKER_TIME) {
+                lastFlickerTime = millis();
+                displayText[currentVisibleIndex] = (char) random(97, 123);
+                text = new String(displayText, 0, currentVisibleIndex+1);
+            }
+
+            if (millis() - lastLetterTime > NEXT_LETTER_TIME) {
+                lastLetterTime = millis();
+                displayText[currentVisibleIndex] = originalText[currentVisibleIndex];
+                text = new String(displayText, 0, currentVisibleIndex+1);
+                currentVisibleIndex++;
+
+                if (currentVisibleIndex >= originalText.length && onDone != null) {
+                    onDone.doAction(this);
+                }
+            }
+        }
         super.drawElement();
     }
 }
