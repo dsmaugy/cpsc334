@@ -109,7 +109,7 @@ void drawTransmissionScreen() {
         println("Transmission submitted!: " + txToSend.toString());
 
         writeTxToCSV(txToSend);
-        printTxToReceipt(txToSend);
+        printTxToReceipt(txToSend, false);
 
         drawnElements.clear();
         drawTransmissionTransition();
@@ -269,7 +269,7 @@ void decodeDone(Transmission t) {
     yesButton.clickAction = (b1) -> {
         drawnElements.clear();
         currentState = State.NAVIGATE;
-        printTxToReceipt(t);
+        printTxToReceipt(t, true);
     };
 
     MessageBox noButton = new MessageBox((outerBox.x - outerBox.width/2) + (2*outerBox.width/3), yesButton.y,

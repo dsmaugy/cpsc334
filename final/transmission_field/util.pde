@@ -1,8 +1,23 @@
 
 
-void printTxToReceipt(Transmission tx) {
-    exec("python3", sketchPath() + "/scripts/print_receipt.py"); // TODO: fill out args
-    // Process p = exec("python3", sketchPath() + "/scripts/python_test.py");
+void printTxToReceipt(Transmission tx, boolean isDecode) {
+    String flag = isDecode ? "" : "-t";
+    Process p = exec("python3", sketchPath() + "/scripts/print_receipt.py", tx.name, 
+    Integer.toString(tx.fieldX), Integer.toString(tx.fieldY), Integer.toString(tx.buttonCombo),
+    Integer.toString(getAttenuation(tx.txDist)), Integer.toString(getFrequency(tx.txPot)),
+    tx.msg);
+
+    try {
+        p.waitFor();
+        byte[] stdout = new byte[1024];
+        byte[] stderr = new byte[1024];
+        p.getInputStream().read(stdout);
+        p.getErrorStream().read(stderr);
+        println("Err: " + new String(stderr));
+        println("Out: " + new String(stdout));
+    } catch (Exception e) {
+        println(e);
+    }
 }
 
 void loadTxFromCSV() {
