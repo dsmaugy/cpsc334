@@ -87,14 +87,7 @@ void drawTransmissionScreen() {
     activePotGauge = potGauge;
     activeButtonCombo = buttonDisp;
 
-    // issue chars: 0x13B2, 
-    char[] testChars = {'\u288B'+5, '\u14D9', '\u146F', '\u1306', '\u11DD', '\u10BE', 
-        '\u0FA7', '\u0E84', '\u0E01', '\u0DDC', '\u0B1E', '\u0992', '\u071C', 
-        '\uF9AE', '\uF9B5', '\uF9C6', '\uF9BF', '\uFDFB', '\u231A', 
-        '\uF9AE'+50, '\uF9B5'+20, '\uF9C6'+2, '\uF9BF'-50, '\uFDFB'-42, '\u231A'+23,
-        '\uF9AE'+55, '\uF9B5'+40, '\uF9C6'+21, '\uF9BF'-55, '\uFDFB'-72, '\u231A'-83};
-    // char[] testChars = {'\u288B'+5, '\u14D9', '\u146F', '\u1306', '\u11DD', '\u10BE'};
-    TextEntryBox entryBox = new TextEntryBox(txBox.x, txBox.y+190, 107, txBox.width-8, 400, color(10, 19, 10, 250), color(0, 255, 0), new String(testChars));
+    TextEntryBox entryBox = new TextEntryBox(txBox.x, txBox.y+190, 107, txBox.width-8, 400, color(10, 19, 10, 250), color(0, 255, 0), "");
     entryBox.textFont = terminalFont;
     entryBox.xAlign = LEFT;
     entryBox.fontSize = 17;
@@ -202,22 +195,16 @@ void openTransmission(Transmission t) {
     activePotGauge = potGauge;
     activeButtonCombo = buttonDisp;
 
-    DecodeBox decodeTextBox = new DecodeBox(decodeBox.x, decodeBox.y+190, 307, decodeBox.width-8, 400, color(10, 19, 10, 250), color(0, 255, 0), t);
-    decodeTextBox.textFont = terminalFont;
-    decodeTextBox.xAlign = CENTER;
-    decodeTextBox.fontSize = 17;
-    decodeTextBox.boxStroke = color(124, 116, 118, 49);
-    activeDecodeField = decodeTextBox;
-
-    MessageBox captureButton = new MessageBox(width/2, ((decodeBox.y+decodeBox.height/2) + (decodeTextBox.y + decodeTextBox.height/2))/2, // halfway between terminal and box end
-        308, 300, 35, color(20, 255, 20, 180), color(255, 255, 255), "CAPTURE");
+    MessageBox captureButton = new MessageBox(width/2, ((decodeBox.y+decodeBox.height/2) + (decodeBox.y+190 + 200))/2, // halfway between terminal and box end
+        308, 300, 35, color(24, 31, 23), color(100, 100, 100), "CAPTURE");
     captureButton.fontSize = 20;
     captureButton.isClickable = false;
-    captureButton.boxStroke = accentOne;
+    captureButton.boxStroke = color(63, 62, 60);
     captureButton.clickAction = (b1) -> {
         if (b1.isClickable) {
             drawnElements.clear();
-            currentState = State.NAVIGATE;
+            currentState = State.DECODE_DONE;
+            decodeDone(t);
         }
     };
     captureButton.hoverAction = (b1) -> {
@@ -230,8 +217,18 @@ void openTransmission(Transmission t) {
         if (b1.isClickable) {
             b1.boxColor = color(20, 255, 20, 180);
             b1.textColor = color(255, 255, 255);
+        } else {
+            b1.boxColor = color(24, 31, 23);
+            b1.textColor = color(100, 100, 100);
         }
     };
+
+    DecodeBox decodeTextBox = new DecodeBox(decodeBox.x, decodeBox.y+190, 307, decodeBox.width-8, 400, color(10, 19, 10, 250), color(0, 255, 0), t, captureButton);
+    decodeTextBox.textFont = terminalFont;
+    decodeTextBox.xAlign = CENTER;
+    decodeTextBox.fontSize = 17;
+    decodeTextBox.boxStroke = color(124, 116, 118, 49);
+    activeDecodeField = decodeTextBox;
 
     drawnElements.add(new Box(width/2, height/2, 99, width, height, mutedGrayColor)); // background mute
     drawnElements.add(decodeBox);
@@ -243,4 +240,48 @@ void openTransmission(Transmission t) {
     drawnElements.add(decodeSteps);
     drawnElements.add(decodeTextBox);
     drawnElements.add(captureButton);
+}
+
+void decodeDone(Transmission t) {
+    MessageBox outerBox = new MessageBox(width/2, height/2, 400, 4*width/5, 7*height/8, txScreenColor, color(0, 255, 0), "Receive Successful!");
+    outerBox.boxStroke = accentOne;
+
+    MessageBox yesButton = new MessageBox((outerBox.x - outerBox.width/2) + (outerBox.width/3), (outerBox.y + outerBox.height/2) - 60,
+        402, 200, 35, color(0, 255, 0), color(255, 255, 255), "YES");
+    yesButton.boxStroke = accentOne;
+    yesButton.isClickable = true;
+    yesButton.hoverAction = (b1) -> {
+        b1.boxColor = accentOne;
+        b1.textColor = color(0, 0, 0);
+    };
+    yesButton.leaveAction = (b1) -> {
+        b1.boxColor = color(0, 255, 0);
+        b1.textColor = color(255, 255, 255);
+    };
+    yesButton.clickAction = (b1) -> {
+        drawnElements.clear();
+        currentState = State.NAVIGATE;
+    };
+
+    MessageBox noButton = new MessageBox((outerBox.x - outerBox.width/2) + (2*outerBox.width/3), yesButton.y,
+        403, 200, 35, color(255, 0, 0), color(255, 255, 255), "NO");
+    noButton.boxStroke = accentOne;
+    noButton.isClickable = true;
+    noButton.hoverAction = (b1) -> {
+        b1.boxColor = accentOne;
+        b1.textColor = color(0, 0, 0);
+    };
+    noButton.leaveAction = (b1) -> {
+        b1.boxColor = color(255, 0, 0);
+        b1.textColor = color(255, 255, 255);
+    };
+    noButton.clickAction = (b1) -> {
+        drawnElements.clear();
+        currentState = State.NAVIGATE;
+    };
+
+    drawnElements.add(new Box(width/2, height/2, 99, width, height, mutedGrayColor)); // background mute
+    drawnElements.add(outerBox);
+    drawnElements.add(yesButton);
+    drawnElements.add(noButton);
 }

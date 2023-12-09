@@ -67,7 +67,7 @@ HashSet<String> transmissionNames = new HashSet<>();
 Serial esp32;
 
 enum State {
-    INTRO, NAVIGATE, TRANSMIT, DECODE;
+    INTRO, NAVIGATE, TRANSMIT, DECODE, DECODE_DONE;
 }
 
 State currentState = State.INTRO;
@@ -105,7 +105,7 @@ void draw() {
     drawCoordinates();
     updateTxReady();
     
-    if (currentState == State.TRANSMIT) {
+    if (currentState == State.TRANSMIT || currentState == State.DECODE) {
         updateSenorValues();
     }
 

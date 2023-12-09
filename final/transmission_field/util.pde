@@ -1,7 +1,7 @@
 
 
 void printTxToReceipt(Transmission tx) {
-    exec("python3", "scripts/print_receipt.py");
+    exec("python3", "scripts/print_receipt.py"); // TODO: fill out args
 }
 
 void loadTxFromCSV() {

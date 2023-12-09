@@ -195,11 +195,15 @@ class DecodeBox extends MessageBox {
     int attenThresh = 0;
     int freqThresh = 2;
 
-    private Transmission tx;
+    boolean decodeMatch = false;
 
-    public DecodeBox(int x, int y, int z, int width, int height, color boxColor, color textColor, Transmission tx) {
+    private Transmission tx;
+    private MessageBox captureButton;
+
+    public DecodeBox(int x, int y, int z, int width, int height, color boxColor, color textColor, Transmission tx, MessageBox captureButton) {
         super(x, y, z, width, height, boxColor, textColor, tx.msg);
         this.tx = tx;
+        this.captureButton = captureButton;
 
         originalText = new char[tx.msg.length()];
         for (int i = 0; i < tx.msg.length(); i++) {
@@ -223,18 +227,25 @@ class DecodeBox extends MessageBox {
 
             if (attenMatch && freqMatch) {
                 text = originalTextString;
+                decodeMatch = true;
+                captureButton.isClickable = true;
+                captureButton.leaveAction.doAction(captureButton);
                 return;
             } 
+            captureButton.isClickable = false;
+            captureButton.leaveAction.doAction(captureButton);
+            decodeMatch = false;
 
-            if (attenMatch) {
-                println("NO WAY!");
-            }
-
-            char[] shiftedText = new char[min(originalText.length, 50)];
+            char[] shiftedText = new char[attenMatch ? originalText.length : min(originalText.length, 50)];
             for (int i = 0; i < shiftedText.length; i++) {
                 int potShift = int(map(freq, MIN_FREQ, MAX_FREQ, 0, 127) + i);
-                int distGroupShift = (attenMatch ? 0 : abs((i + atten) % unicodeGroups.length));
-                shiftedText[i] = (char)(originalText[i] + unicodeGroups[distGroupShift] + potShift);
+                
+                if (attenMatch) {
+                    shiftedText[i] = (char)(originalText[i] + potShift > 122 ? ((originalText[i] + potShift) % 58) + 65 : originalText[i] + potShift);
+                } else {
+                    int distGroupShift = abs((i + atten) % unicodeGroups.length);
+                    shiftedText[i] = (char)(originalText[i] + unicodeGroups[distGroupShift] + potShift);
+                }
             }
             
             text = new String(shiftedText);
