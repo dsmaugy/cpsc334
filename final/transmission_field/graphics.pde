@@ -342,6 +342,17 @@ class TextEntryBox extends MessageBox {
         super.drawElement();
     }
 
+    public String getText() {
+        if (isCursorVisible) {
+            textEntry.removeLast();
+            isCursorVisible = false;
+        }
+
+        return textEntry.stream()
+            .map(Object::toString)
+            .collect(Collectors.joining());
+    }
+
     public void addChar(char c) {
         int lastCharIdx = isCursorVisible ? textEntry.size() - 1: textEntry.size();
         textEntry.add(lastCharIdx, c);

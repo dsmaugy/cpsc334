@@ -100,7 +100,7 @@ void drawTransmissionScreen() {
     transmitButton.isClickable = true;
     transmitButton.boxStroke = accentOne;
     transmitButton.clickAction = (b1) -> {
-        txToSend.updateMsg(entryBox.text);
+        txToSend.updateMsg(entryBox.getText());
         txToSend.buttonCombo = buttonsVal;
         txToSend.txPot = potVal;
         txToSend.txDist = distVal;

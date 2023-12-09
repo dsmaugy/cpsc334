@@ -30,7 +30,7 @@ def print_bolded(printer, text):
     printer.text(text)
     printer.set(bold=False)
 
-def print():
+def print_receipt():
     parser = argparse.ArgumentParser()
 
     parser.add_argument("name")
@@ -39,14 +39,19 @@ def print():
     parser.add_argument("encoding")
     parser.add_argument("atten")
     parser.add_argument("freq")
-    parser.add_argument("msg")
-    parser.add_argument("-t", "--transmit", action="store_true")
+    parser.add_argument("msg", nargs="...")
+
+    action_type = parser.add_mutually_exclusive_group()
+    action_type.add_argument("-t", "--transmit", action="store_true")
+    action_type.add_argument("-d", "--decode", action="store_true")
 
     args = parser.parse_args()
 
     # p = Usb(0x0416, 0x5011, in_ep=0x81, out_ep=0x03, profile="NT-5890K")
     p = Win32Raw("POS-58", profile="NT-5890K")
+    print(args.__repr__())
 
+    # exit(1)
     p.set(align="center")
 
     large_text(p)
@@ -80,7 +85,7 @@ def print():
     print_bolded(p, "-BEGIN TRANSMISSION-\n")
 
     p.set(font="b", align="left")
-    p.textln(args.msg)
+    p.textln("".join(args.msg))
 
     p.set(align="center", font="a")
     print_bolded(p, "-END TRANSMISSION-\n")
@@ -95,4 +100,4 @@ def print():
     
 
 if __name__ == "__main__":
-    print()
+    print_receipt()

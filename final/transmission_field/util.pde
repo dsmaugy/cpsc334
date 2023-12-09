@@ -1,12 +1,15 @@
 
 
 void printTxToReceipt(Transmission tx, boolean isDecode) {
-    String flag = isDecode ? "" : "-t";
-    Process p = exec("python3", sketchPath() + "/scripts/print_receipt.py", tx.name, 
+    String flag = isDecode ? "-d" : "-t";
+    String cleanedMsg = tx.msg.replace("\"", "\\\"");
+
+    Process p = exec("python3", sketchPath() + "/scripts/print_receipt.py", flag, tx.name, 
     Integer.toString(tx.fieldX), Integer.toString(tx.fieldY), Integer.toString(tx.buttonCombo),
     Integer.toString(getAttenuation(tx.txDist)), Integer.toString(getFrequency(tx.txPot)),
-    tx.msg);
+    cleanedMsg);
 
+    // debug printing
     try {
         p.waitFor();
         byte[] stdout = new byte[1024];
