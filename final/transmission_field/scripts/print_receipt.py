@@ -1,4 +1,5 @@
-from escpos.printer import Usb
+# from escpos.printer import Usb
+from escpos.printer import Win32Raw
 from datetime import datetime
 
 import argparse
@@ -43,7 +44,9 @@ def print():
 
     args = parser.parse_args()
 
-    p = Usb(0x0416, 0x5011, in_ep=0x81, out_ep=0x03, profile="NT-5890K")
+    # p = Usb(0x0416, 0x5011, in_ep=0x81, out_ep=0x03, profile="NT-5890K")
+    p = Win32Raw("POS-58", profile="NT-5890K")
+
     p.set(align="center")
 
     large_text(p)
