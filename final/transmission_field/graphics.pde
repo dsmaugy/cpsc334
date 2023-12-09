@@ -188,6 +188,7 @@ class MessageBox extends Box {
 class DecodeBox extends MessageBox {
 
     char[] originalText;
+    String originalTextString;
     int currentAtten = 0;
     int currentFreq = 0;
 
@@ -204,6 +205,8 @@ class DecodeBox extends MessageBox {
         for (int i = 0; i < tx.msg.length(); i++) {
             originalText[i] = tx.msg.charAt(i);
         }
+
+        originalTextString = new String(originalText);
     }
 
     public void shiftText() {
@@ -219,7 +222,7 @@ class DecodeBox extends MessageBox {
             boolean freqMatch = abs(freq - getFrequency(tx.txPot)) <= freqThresh ? true : false;
 
             if (attenMatch && freqMatch) {
-                text = new String(originalText);
+                text = originalTextString;
                 return;
             } 
 
@@ -229,7 +232,9 @@ class DecodeBox extends MessageBox {
 
             char[] shiftedText = new char[min(originalText.length, 50)];
             for (int i = 0; i < shiftedText.length; i++) {
-                shiftedText[i] = (char)(originalText[i] + unicodeGroups[attenMatch ? 0 : abs((i + atten) % unicodeGroups.length)]); // TODO: factor in pot here
+                int potShift = int(map(freq, MIN_FREQ, MAX_FREQ, 0, 127) + i);
+                int distGroupShift = (attenMatch ? 0 : abs((i + atten) % unicodeGroups.length));
+                shiftedText[i] = (char)(originalText[i] + unicodeGroups[distGroupShift] + potShift);
             }
             
             text = new String(shiftedText);
