@@ -185,6 +185,22 @@ class MessageBox extends Box {
     }
 }
 
+class MessageBoxAnimated extends MessageBox {
+
+    char[] originalText;
+    int currentVisibleIndex = 0;
+
+    public MessageBoxAnimated(int x, int y, int z, int width, int height, String text) {
+        super(x, y, z, width, height, color(10, 19, 10, 250), color(0, 255, 0), text);
+    }
+
+    @Override
+    public void drawElement() {
+        // TODO: animate text
+        super.drawElement();
+    }
+}
+
 class DecodeBox extends MessageBox {
 
     char[] originalText;
@@ -236,7 +252,7 @@ class DecodeBox extends MessageBox {
             captureButton.leaveAction.doAction(captureButton);
             decodeMatch = false;
 
-            char[] shiftedText = new char[attenMatch ? originalText.length : min(originalText.length, 50)];
+            char[] shiftedText = new char[attenMatch ? originalText.length : min(originalText.length, 100)];
             for (int i = 0; i < shiftedText.length; i++) {
                 int potShift = int(map(freq, MIN_FREQ, MAX_FREQ, 0, 127) + i);
                 
