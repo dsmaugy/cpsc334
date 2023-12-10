@@ -33,10 +33,10 @@ color transparentColor = color(0, 0, 0, 1); // this is a hack, 0 transparency do
 
 void drawIntroScreen() {
     currentState = State.INTRO;
-    MessageBox introBox = new MessageBox(width/2, height/2, 1, 3*width/5, 3*height/5, color(8, 12, 38, 120), color(255, 255, 255), introText);
+    MessageBox introBox = new MessageBox(width/2, height/2, 2, 3*width/5, 3*height/5, color(8, 12, 38, 120), color(255, 255, 255), introText);
     introBox.boxStroke = accentOne;
 
-    MessageBox closeButton = new MessageBox(introBox.x, introBox.y + introBox.height/2 - 60, 2, introBox.width-40, 50, color(80, 12, 38, 120), color(255, 255, 255), "Proceed...");
+    MessageBox closeButton = new MessageBox(introBox.x, introBox.y + introBox.height/2 - 60, 3, introBox.width-40, 50, color(80, 12, 38, 120), color(255, 255, 255), "Proceed...");
     closeButton.isClickable = true;
     closeButton.boxStroke = accentOne;
     closeButton.hoverAction = (b1) -> {
@@ -53,7 +53,7 @@ void drawIntroScreen() {
         currentState = State.NAVIGATE;
     };
     
-    drawnElements.add(new Box(width/2, height/2, 0, width, height, mutedGrayColor));
+    drawnElements.add(new Box(width/2, height/2, 1, width, height, mutedGrayColor));
     drawnElements.add(introBox);
     drawnElements.add(closeButton);
 }
@@ -244,15 +244,17 @@ void openTransmission(Transmission t) {
 }
 
 void decodeDone(Transmission t) {
-    MessageBox outerBox = new MessageBox(width/2, height/2, 400, 4*width/5, 7*height/8, txScreenColor, color(0, 255, 0), "Receive Successful!");
+    MessageBox outerBox = new MessageBox(width/2, height/2, 400, 4*width/5, 5*height/8, txScreenColor, color(219, 219, 0), "Capturing Transmission...");
     outerBox.boxStroke = accentOne;
 
-    MessageBoxAnimated displayBox = new MessageBoxAnimated(outerBox.x, outerBox.y, 401, outerBox.width-8, 400, t.msg);
+    MessageBoxAnimated displayBox = new MessageBoxAnimated(outerBox.x, outerBox.y-65, 401, outerBox.width-8, 400, t.msg);
     displayBox.textFont = terminalFont;
     displayBox.xAlign = CENTER;
     displayBox.yAlign = CENTER;
     displayBox.fontSize = 17;
     displayBox.boxStroke = color(124, 116, 118, 49);
+
+    MessageBox printQuery = new MessageBox(outerBox.x, displayBox.y + displayBox.height/2 + 40, 404, outerBox.width, 35, transparentColor, color(255, 255, 25), "Obtain Physical Certificate of Receival?");
 
     MessageBox yesButton = new MessageBox((outerBox.x - outerBox.width/2) + (outerBox.width/3), (outerBox.y + outerBox.height/2) - 60,
         402, 200, 35, color(0, 255, 0), color(255, 255, 255), "YES");
@@ -292,6 +294,10 @@ void decodeDone(Transmission t) {
     displayBox.onDone = (b1) -> {
         drawnElements.add(yesButton);
         drawnElements.add(noButton);
+        drawnElements.add(printQuery);
+
+        outerBox.text = "Receive Successful!";
+        outerBox.textColor = color(0, 255, 0);
     };
 
     drawnElements.add(new Box(width/2, height/2, 99, width, height, mutedGrayColor)); // background mute
