@@ -70,5 +70,7 @@ void serialEvent(Serial p) {
         distVal = int(e.substring(5, e.length()-1));
     } else if (e.startsWith("POT:")) {
         potVal = int(e.substring(4, e.length()-1));
+    } else if (e.startsWith("BUTTON:")) {
+        buttonsVal = int(e.substring(7, e.length()-1));
     }
 }

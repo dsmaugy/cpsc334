@@ -6,7 +6,7 @@ import java.util.HashSet;
 
 String serialPort = "COM3";
 
-final char[] unicodeGroups = {'\u0000', '\u0400', '\u0590', '\u0600', '\u0980', '\u0A80', 
+final char[] unicodeGroups = {'\u0400', '\u0590', '\u0600', '\u0980', '\u0A80', 
 '\u0B80', '\u0E80', '\u1400', '\u1780', '\u0400', '\u20A0', '\u20D0', 
 '\u2460', '\u2500', '\u2701', '\u2800', '\u31A0', '\u2190'};
 
@@ -89,8 +89,8 @@ void setup() {
     loadTxFromCSV();
     drawIntroScreen();
 
-    // esp32 = new Serial(this, serialPort, 9600);
-    // esp32.bufferUntil('\n');
+    esp32 = new Serial(this, serialPort, 9600);
+    esp32.bufferUntil('\n');
 
     println(sketchPath());
     println(Serial.list());    

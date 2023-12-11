@@ -65,8 +65,8 @@ def print_receipt():
         p.text(f"{datetime.now()}\n") # TODO: change this
     else:
         print_bolded(p, "Time of Reception: ")
-        p.text(f"{datetime.now()}\n")
-
+        p.text(f"{datetime.strftime(datetime.now(), "")}\n")
+    
     print_bolded(p, "Location: ")
     p.text(f"({args.x}, {args.y})\n")
 
@@ -79,7 +79,7 @@ def print_receipt():
     print_bolded(p, "Freq: ")
     p.text(f"{args.freq} HZ\n")
 
-    p.set(align="center")
+    p.set(align="center")()
     print_bolded(p, f"{'*'*PAPER_WIDTH}\n")
 
     print_bolded(p, "-BEGIN TRANSMISSION-\n")

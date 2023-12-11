@@ -10,17 +10,17 @@ void printTxToReceipt(Transmission tx, boolean isDecode) {
     cleanedMsg);
 
     // debug printing
-    try {
-        p.waitFor();
-        byte[] stdout = new byte[1024];
-        byte[] stderr = new byte[1024];
-        p.getInputStream().read(stdout);
-        p.getErrorStream().read(stderr);
-        println("Err: " + new String(stderr));
-        println("Out: " + new String(stdout));
-    } catch (Exception e) {
-        println(e);
-    }
+    // try {
+    //     p.waitFor();
+    //     byte[] stdout = new byte[1024];
+    //     byte[] stderr = new byte[1024];
+    //     p.getInputStream().read(stdout);
+    //     p.getErrorStream().read(stderr);
+    //     println("Err: " + new String(stderr));
+    //     println("Out: " + new String(stdout));
+    // } catch (Exception e) {
+    //     println(e);
+    // }
 }
 
 void loadTxFromCSV() {
