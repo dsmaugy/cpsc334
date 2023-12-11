@@ -176,4 +176,8 @@ void updateSenorValues() {
 
     activePotGauge.setAngle(min(map(potVal, 0, 4095, 0, 180), 180));
     activePotGauge.setValue(getFrequency(potVal));
+
+    for (int i = 0; i < 3; i++) {
+        activeButtonCombo.setLight(i, getEncodingStatus(i, buttonsVal));  
+    }
 }

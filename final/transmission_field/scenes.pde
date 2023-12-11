@@ -50,7 +50,7 @@ void drawIntroScreen() {
     };
     closeButton.clickAction = (b1) -> {
         drawnElements.clear();
-        currentState = State.NAVIGATE;
+        switchToNavigate();
     };
     
     drawnElements.add(new Box(width/2, height/2, 1, width, height, mutedGrayColor));
@@ -60,6 +60,7 @@ void drawIntroScreen() {
 
 void drawTransmissionScreen() {
     currentState = State.TRANSMIT;
+    esp32.write("TRANSMIT");
     txToSend = new Transmission(getNewTxName(), currentPosX, currentPosY, "", 0, 0, 0);
 
     MessageBox txBox = new MessageBox(width/2, height/2, 100, 4*width/5, 7*height/8, txScreenColor, color(255, 0, 0), "Transmitter v2");
@@ -68,7 +69,7 @@ void drawTransmissionScreen() {
     CloseButton cb = new CloseButton(txBox.x + txBox.width/2, txBox.y - txBox.height/2, 101, 35, 35);
     cb.clickAction = (b1) -> {
         drawnElements.clear();
-        currentState = State.NAVIGATE;
+        switchToNavigate();
     };
 
     MessageBox txDesc = new MessageBox(txBox.x, txBox.y-txBox.height/2+100, 102, txBox.width, 60, transparentColor, color(255, 255, 255), "Transmission Steps:");
@@ -153,7 +154,7 @@ void drawTransmissionTransition() {
     };
     closeButton.clickAction = (b1) -> {
         drawnElements.clear();
-        currentState = State.NAVIGATE;
+        switchToNavigate();
     };
 
 
@@ -170,6 +171,7 @@ void drawTransmissionTransition() {
 
 void openTransmission(Transmission t) {
     currentState = State.DECODE;
+    esp32.write("DECODE");
 
     MessageBox decodeBox = new MessageBox(width/2, height/2, 300, 4*width/5, 7*height/8, txScreenColor, color(255, 0, 0), "Receiver v2");
     decodeBox.boxStroke = accentOne;
@@ -177,7 +179,7 @@ void openTransmission(Transmission t) {
     CloseButton cb = new CloseButton(decodeBox.x + decodeBox.width/2, decodeBox.y - decodeBox.height/2, 301, 35, 35);
     cb.clickAction = (b1) -> {
         drawnElements.clear();
-        currentState = State.NAVIGATE;
+        switchToNavigate();
     };
 
     MessageBox decodeDesc = new MessageBox(decodeBox.x, decodeBox.y-decodeBox.height/2+100, 302, decodeBox.width, 60, transparentColor, color(255, 255, 255), "Decoding Steps:");
@@ -270,7 +272,7 @@ void decodeDone(Transmission t) {
     };
     yesButton.clickAction = (b1) -> {
         drawnElements.clear();
-        currentState = State.NAVIGATE;
+        switchToNavigate();
         printTxToReceipt(t, true);
     };
 
@@ -288,7 +290,7 @@ void decodeDone(Transmission t) {
     };
     noButton.clickAction = (b1) -> {
         drawnElements.clear();
-        currentState = State.NAVIGATE;
+        switchToNavigate();
     };
 
     displayBox.onDone = (b1) -> {

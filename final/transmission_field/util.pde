@@ -42,6 +42,12 @@ int getAttenuation(float dist) {
     return constrain(int(map(dist, MIN_DIST, MAX_DIST, MAX_ATTEN, MIN_ATTEN)), MIN_ATTEN, MAX_ATTEN);
 }
 
+boolean getEncodingStatus(int lightNum, int buttonVal) {
+    return (1 << lightNum) & buttonVal;
+}
+
+
+
 void writeTxToCSV(Transmission tx) {
     TableRow newEntry = txData.addRow();
     newEntry.setString("name", tx.name);
@@ -83,4 +89,10 @@ String getNewTxName() {
     }
 
     return potentialName;
+}
+
+
+void switchToNavigate() {
+    currentState = State.NAVIGATE;
+    esp32.write("IDLE");
 }

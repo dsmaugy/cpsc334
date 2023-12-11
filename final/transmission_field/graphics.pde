@@ -567,7 +567,7 @@ class SensorGauge extends UIElement {
 class ButtonCombo extends UIElement {
 
     int circleSpacing;
-    boolean[] lightOn = {false, true, false};
+    boolean[] lightOn = {false, falses, false};
 
     color colorOff = color(0, 100, 100);
     color colorOn = color(0, 255, 100);
@@ -594,6 +594,10 @@ class ButtonCombo extends UIElement {
         textAlign(CENTER, BASELINE);
         textFont(startFont, 18);
         text("Encoding Method", x, y - boundingHeight + 10);
+    }
+
+    public void setLight(int lightIdx, boolean val) {
+        lightOn[lightIdx] = val;
     }
     
 }
