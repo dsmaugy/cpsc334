@@ -236,6 +236,7 @@ class DecodeBox extends MessageBox {
     String originalTextString;
     int currentAtten = 0;
     int currentFreq = 0;
+    int currentButtonsCombo = 0;
 
     int attenThresh = 0;
     int freqThresh = 2;
@@ -262,9 +263,20 @@ class DecodeBox extends MessageBox {
         int atten = getAttenuation(distVal);
         int freq = getFrequency(potVal);
         println("Atten: " + atten + " (" + distVal + ")" + " Freq: " + freq + " (" + potVal + ")");
-        if (currentAtten != atten || currentFreq != freq) {
+        if (currentAtten != atten || currentFreq != freq || currentButtonsCombo != buttonsVal) {
             currentAtten = atten;
             currentFreq = freq;
+            currentButtonsCombo = buttonsVal;
+            
+            // by default we're in an unsolved state
+            captureButton.isClickable = false;
+            captureButton.leaveAction.doAction(captureButton);
+            decodeMatch = false;
+
+            if (currentButtonsCombo != tx.buttonCombo) {
+                text = "";
+                return;
+            }
 
             // println("Atten: " + atten + " (" + distVal + ")" + " Freq: " + freq + " (" + potVal + ")");
             boolean attenMatch = abs(atten - getAttenuation(tx.txDist)) <= attenThresh ? true : false;
@@ -277,9 +289,6 @@ class DecodeBox extends MessageBox {
                 captureButton.leaveAction.doAction(captureButton);
                 return;
             } 
-            captureButton.isClickable = false;
-            captureButton.leaveAction.doAction(captureButton);
-            decodeMatch = false;
 
             char[] shiftedText = new char[attenMatch ? originalText.length : min(originalText.length, 100)];
             for (int i = 0; i < shiftedText.length; i++) {
@@ -567,7 +576,7 @@ class SensorGauge extends UIElement {
 class ButtonCombo extends UIElement {
 
     int circleSpacing;
-    boolean[] lightOn = {false, falses, false};
+    boolean[] lightOn = {false, false, false};
 
     color colorOff = color(0, 100, 100);
     color colorOn = color(0, 255, 100);

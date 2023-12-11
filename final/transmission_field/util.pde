@@ -43,7 +43,7 @@ int getAttenuation(float dist) {
 }
 
 boolean getEncodingStatus(int lightNum, int buttonVal) {
-    return (1 << lightNum) & buttonVal;
+    return ((1 << lightNum) & buttonVal) > 0;
 }
 
 
@@ -94,5 +94,5 @@ String getNewTxName() {
 
 void switchToNavigate() {
     currentState = State.NAVIGATE;
-    esp32.write("IDLE");
+    esp32.write("IDLE\n");
 }

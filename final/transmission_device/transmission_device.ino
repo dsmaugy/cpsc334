@@ -44,10 +44,6 @@ void setup() {
 }
 
 void loop() {
-  int button_1_current = digitalRead(BUTTON_1);
-  int button_2_current = digitalRead(BUTTON_2);
-  int button_3_current = digitalRead(BUTTON_3);
-
   if (Serial.available()) {
     String cmd = Serial.readStringUntil('\n');
     if (cmd != NULL) {
@@ -92,10 +88,10 @@ void loop() {
     }
   }
 
-  digitalWrite(STATUS_LED, currLedState);
-  digitalWrite(BUTTON_1_LED, button_1_led);
-  digitalWrite(BUTTON_2_LED, button_2_led);
-  digitalWrite(BUTTON_3_LED, button_3_led);
+  // digitalWrite(STATUS_LED, currLedState);
+  // digitalWrite(BUTTON_1_LED, button_1_led);
+  // digitalWrite(BUTTON_2_LED, button_2_led);
+  // digitalWrite(BUTTON_3_LED, button_3_led);
 }
 
 float getDistance() {
@@ -107,6 +103,9 @@ float getDistance() {
 }
 
 int getButtonState() {
+  int button_1_current = digitalRead(BUTTON_1);
+  int button_2_current = digitalRead(BUTTON_2);
+  int button_3_current = digitalRead(BUTTON_3);
 
   if (!button_1_current && button_1_prev != button_1_current) {
     button_1_toggle = !button_1_toggle;

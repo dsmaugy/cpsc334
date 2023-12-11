@@ -60,7 +60,7 @@ void drawIntroScreen() {
 
 void drawTransmissionScreen() {
     currentState = State.TRANSMIT;
-    esp32.write("TRANSMIT");
+    esp32.write("TRANSMIT\n");
     txToSend = new Transmission(getNewTxName(), currentPosX, currentPosY, "", 0, 0, 0);
 
     MessageBox txBox = new MessageBox(width/2, height/2, 100, 4*width/5, 7*height/8, txScreenColor, color(255, 0, 0), "Transmitter v2");
@@ -171,7 +171,7 @@ void drawTransmissionTransition() {
 
 void openTransmission(Transmission t) {
     currentState = State.DECODE;
-    esp32.write("DECODE");
+    esp32.write("DECODE\n");
 
     MessageBox decodeBox = new MessageBox(width/2, height/2, 300, 4*width/5, 7*height/8, txScreenColor, color(255, 0, 0), "Receiver v2");
     decodeBox.boxStroke = accentOne;
