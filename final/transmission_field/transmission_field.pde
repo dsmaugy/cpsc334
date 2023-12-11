@@ -91,6 +91,8 @@ void setup() {
 
     esp32 = new Serial(this, serialPort, 9600);
     esp32.bufferUntil('\n');
+    // TODO: have an INTRO mode on esp32??
+    esp32.write("IDLE"); // explicitly start off in IDLE mode
 
     println(sketchPath());
     println(Serial.list());    
