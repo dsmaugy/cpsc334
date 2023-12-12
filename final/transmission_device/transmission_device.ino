@@ -2,15 +2,15 @@
 #define TRIG_PIN 4
 #define ECHO_PIN 5
 #define POT_PIN 26
-#define STATUS_LED 0
+#define STATUS_LED 13
 
 #define BUTTON_3 2
 #define BUTTON_2 15
 #define BUTTON_1 16
 
-#define BUTTON_1_LED 16
-#define BUTTON_2_LED 16
-#define BUTTON_3_LED 16
+#define BUTTON_1_LED 27
+#define BUTTON_2_LED 14
+#define BUTTON_3_LED 12
 
 enum DeviceState {IDLE, TRANSMIT, DECODE};
 
@@ -39,6 +39,11 @@ void setup() {
   pinMode(BUTTON_1, INPUT_PULLUP);
   pinMode(BUTTON_2, INPUT_PULLUP);
   pinMode(BUTTON_3, INPUT_PULLUP);
+
+  pinMode(BUTTON_1_LED, OUTPUT);
+  pinMode(BUTTON_2_LED, OUTPUT);
+  pinMode(BUTTON_3_LED, OUTPUT);
+  pinMode(STATUS_LED, OUTPUT);
 
   Serial.begin(9600);
 }
@@ -88,10 +93,10 @@ void loop() {
     }
   }
 
-  // digitalWrite(STATUS_LED, currLedState);
-  // digitalWrite(BUTTON_1_LED, button_1_led);
-  // digitalWrite(BUTTON_2_LED, button_2_led);
-  // digitalWrite(BUTTON_3_LED, button_3_led);
+  digitalWrite(STATUS_LED, currLedState);
+  digitalWrite(BUTTON_1_LED, button_1_led);
+  digitalWrite(BUTTON_2_LED, button_2_led);
+  digitalWrite(BUTTON_3_LED, button_3_led);
 }
 
 float getDistance() {
