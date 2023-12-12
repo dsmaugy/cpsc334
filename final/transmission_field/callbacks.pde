@@ -49,9 +49,7 @@ void keyTyped() {
         } else {
             activeTextField.addChar(key);
         }   
-    }
-
-    if (currentState == State.DECODE && activeDecodeField != null) {
+    } else if (currentState == State.DECODE && activeDecodeField != null) {
         if (key == 'k') {
             distVal += -1;
         } else if (key == 'l') {
@@ -61,6 +59,8 @@ void keyTyped() {
         } else if (key == 'p') {
             potVal += 30;
         }
+    } else if (currentState == State.NAVIGATE && key == 'r') {
+        drawIntroScreen();
     }
 }
 

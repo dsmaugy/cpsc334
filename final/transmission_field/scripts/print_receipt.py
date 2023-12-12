@@ -65,7 +65,7 @@ def print_receipt():
         p.text(f"{datetime.now()}\n") # TODO: change this
     else:
         print_bolded(p, "Time of Reception: ")
-        p.text(f"{datetime.strftime(datetime.now(), "")}\n")
+        p.text(f"{datetime.strftime(datetime.now(), "")}\n") # TODO: change date
     
     print_bolded(p, "Location: ")
     p.text(f"({args.x}, {args.y})\n")
