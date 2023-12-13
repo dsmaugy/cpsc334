@@ -13,14 +13,14 @@ final char[] unicodeGroups = {'\u0400', '\u0590', '\u0600', '\u0980', '\u0A80',
 // transmission parameters
 final int MAX_FREQ = 200;
 final int MIN_FREQ = 1;
-final int MIN_DIST = 0;
-final int MAX_DIST = 40;
-final int MIN_ATTEN = -10;
-final int MAX_ATTEN = 10;
+final int MIN_DIST = 4;
+final int MAX_DIST = 30;
+final int MIN_ATTEN = -5;
+final int MAX_ATTEN = 5;
 
 // field/window size
-final int FIELD_WIDTH = 4000;
-final int FIELD_HEIGHT = 4000;
+final int FIELD_WIDTH = 6000;
+final int FIELD_HEIGHT = 6000;
 final int FIELD_SCROLL_BORDER = 30; // amount of pixels at the edge to begin scrolling
 final int SCROLL_SPEED_BASE = 10;
 int MAX_CENTER_X;
@@ -35,9 +35,9 @@ int currentPosY = 0;
 // this is a hack for getting .equals to work on Transmission objects in TreeSet
 int totalNumTransmissions = 0;
 
-final int TX_COOLDOWN = 5000; // should be >= 20000 for prod
+final int TX_COOLDOWN = 5000; // TODO: should be >= 20000 for prod
 int lastTx = 0;
-boolean readyToTransmit = false; // should be initialized to true for prod
+boolean readyToTransmit = false; // TODO: should be initialized to true for prod
 
 // current transmission variables
 int buttonsVal = 0;

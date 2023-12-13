@@ -262,7 +262,7 @@ class DecodeBox extends MessageBox {
     public void shiftText() {
         int atten = getAttenuation(distVal);
         int freq = getFrequency(potVal);
-        println("Atten: " + atten + " (" + distVal + ")" + " Freq: " + freq + " (" + potVal + ")");
+        // println("Atten: " + atten + " (" + distVal + ")" + " Freq: " + freq + " (" + potVal + ")");
         if (currentAtten != atten || currentFreq != freq || currentButtonsCombo != buttonsVal) {
             currentAtten = atten;
             currentFreq = freq;

@@ -21,9 +21,6 @@ bool button_3_toggle = false;
 int button_1_prev = 0;
 int button_2_prev = 0;
 int button_3_prev = 0;
-int button_1_led = LOW;
-int button_2_led = LOW;
-int button_3_led = LOW;
 
 int currButtonState = 0;
 int currLedState = LOW;
@@ -59,23 +56,17 @@ void loop() {
         currState = TRANSMIT;
       } else if (cmd.equals("DECODE")) {
         currState = DECODE;
-
-        // reset the buttons
-        button_1_led = LOW;
-        button_2_led = LOW;
-        button_3_led = LOW;
-        button_1_toggle = LOW;
-        button_2_toggle = LOW;
-        button_3_toggle = LOW;
       }
+
+      // any state switch resets the buttons
+      button_1_toggle = false;
+      button_2_toggle = false;
+      button_3_toggle = false;
     } 
   }
 
   if (currState == IDLE) {
     currLedState = HIGH;
-    button_1_led = LOW;
-    button_2_led = LOW;
-    button_3_led = LOW;
   } else if (currState == TRANSMIT || currState == DECODE) {
     // explicitly do not send carriage returns
     Serial.print("DIST:" + String(getDistance()) + "\n" );
@@ -94,9 +85,9 @@ void loop() {
   }
 
   digitalWrite(STATUS_LED, currLedState);
-  digitalWrite(BUTTON_1_LED, button_1_led);
-  digitalWrite(BUTTON_2_LED, button_2_led);
-  digitalWrite(BUTTON_3_LED, button_3_led);
+  digitalWrite(BUTTON_1_LED, button_1_toggle);
+  digitalWrite(BUTTON_2_LED, button_2_toggle);
+  digitalWrite(BUTTON_3_LED, button_3_toggle);
 }
 
 float getDistance() {
@@ -114,17 +105,14 @@ int getButtonState() {
 
   if (!button_1_current && button_1_prev != button_1_current) {
     button_1_toggle = !button_1_toggle;
-    button_1_led = !button_1_led;
   }
 
   if (!button_2_current && button_2_prev != button_2_current) {
     button_2_toggle = !button_2_toggle;
-    button_2_led = !button_2_led;
   }
 
   if (!button_3_current && button_3_prev != button_3_current) {
     button_3_toggle = !button_3_toggle;
-    button_3_led = !button_3_led;
   }
   button_1_prev = button_1_current;
   button_2_prev = button_2_current;

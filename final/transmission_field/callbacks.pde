@@ -68,6 +68,7 @@ void serialEvent(Serial p) {
     String e = p.readString();
     if (e.startsWith("DIST:")) {
         distVal = int(e.substring(5, e.length()-1));
+        println(distVal);
     } else if (e.startsWith("POT:")) {
         potVal = int(e.substring(4, e.length()-1));
     } else if (e.startsWith("BUTTON:")) {

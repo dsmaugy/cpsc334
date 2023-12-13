@@ -1,6 +1,6 @@
-final int NUM_STARS = 10000;
-final int bg_width = 4000;
-final int bg_height = 4000;
+final int NUM_STARS = 20000;
+final int bg_width = 6000;
+final int bg_height = 6000;
 
 // background perlin noise
 float noiseScale = 1; // 130;

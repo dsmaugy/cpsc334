@@ -60,12 +60,14 @@ def print_receipt():
 
     print_bolded(p, f"{'*'*PAPER_WIDTH}\n")
     p.set(align="left")
+    print_bolded(p, "Type: ")
     if args.transmit:
-        print_bolded(p, "Time of Transmission: ")
-        p.text(f"{datetime.now()}\n") # TODO: change this
+        p.text("TRANSMIT\n")
     else:
-        print_bolded(p, "Time of Reception: ")
-        p.text(f"{datetime.strftime(datetime.now(), "")}\n") # TODO: change date
+        p.text("DECODE\n")
+
+    print_bolded(p, "Time: ")
+    p.text(f"{datetime.strftime(datetime.now(), "%m-%d-%y %H:%M")}\n") 
     
     print_bolded(p, "Location: ")
     p.text(f"({args.x}, {args.y})\n")
@@ -79,7 +81,7 @@ def print_receipt():
     print_bolded(p, "Freq: ")
     p.text(f"{args.freq} HZ\n")
 
-    p.set(align="center")()
+    p.set(align="center")
     print_bolded(p, f"{'*'*PAPER_WIDTH}\n")
 
     print_bolded(p, "-BEGIN TRANSMISSION-\n")

@@ -61,7 +61,7 @@ void writeTxToCSV(Transmission tx) {
 }
 
 int getTxRadius(String msg) {
-    return int(map(msg.length(), 1, 700, 15, 60));
+    return int(constrain(map(msg.length(), 1, 1000, 15, 75), 15, 75));
 }
 
 int sketchToFieldX(int sketchCoord) {

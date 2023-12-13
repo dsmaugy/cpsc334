@@ -1,14 +1,23 @@
 
-String introText = """Here we go here here we go.
-Damn, everything that something made me everything I am
-it's true!!
-yep yep yep 
-bingus 
-bongus 
-btest
-la la l al al
-wai ttill i get my money right
-ooooh
+String introText = """Welcome to Sonderful Transmissions""";
+
+String introDesc = """
+
+
+
+- Navigate around the starfield with the computer mouse
+- Click on any empty space to start a new transmission
+- Click on any existing transmission to attempt to decode
+- Use the attached transmission device for both transmitting and decoding
+- The three parameters to control are:
+    1. Encoding Method
+    2. Broadcast frequency
+    3. Broadcast attenuation
+
+
+Be thoughtful.
+What should the universe hear from you?
+What do you wish to listen to?
 """;
 
 String txStepsText = """1. Input desired message
@@ -33,10 +42,14 @@ color transparentColor = color(0, 0, 0, 1); // this is a hack, 0 transparency do
 
 void drawIntroScreen() {
     currentState = State.INTRO;
-    MessageBox introBox = new MessageBox(width/2, height/2, 2, 3*width/5, 3*height/5, color(8, 12, 38, 120), color(255, 255, 255), introText);
+    MessageBox introBox = new MessageBox(width/2, height/2, 2, 3*width/5, 3*height/5, color(8, 12, 38, 120), color(0, 255, 0), introText);
     introBox.boxStroke = accentOne;
 
-    MessageBox closeButton = new MessageBox(introBox.x, introBox.y + introBox.height/2 - 60, 3, introBox.width-40, 50, color(80, 12, 38, 120), color(255, 255, 255), "Proceed...");
+    MessageBox introBoxDesc = new MessageBox(width/2, height/2, 3, 3*width/5, 3*height/5, transparentColor, color(255, 255, 255), introDesc);
+    introBoxDesc.fontSize = 20;
+    introBoxDesc.xAlign = LEFT;
+
+    MessageBox closeButton = new MessageBox(introBox.x, introBox.y + introBox.height/2 - 60, 4, introBox.width-40, 50, color(80, 12, 38, 120), color(255, 255, 255), "Proceed...");
     closeButton.isClickable = true;
     closeButton.boxStroke = accentOne;
     closeButton.hoverAction = (b1) -> {
@@ -56,6 +69,7 @@ void drawIntroScreen() {
     drawnElements.add(new Box(width/2, height/2, 1, width, height, mutedGrayColor));
     drawnElements.add(introBox);
     drawnElements.add(closeButton);
+    drawnElements.add(introBoxDesc);
 }
 
 void drawTransmissionScreen() {
@@ -73,12 +87,12 @@ void drawTransmissionScreen() {
     };
 
     MessageBox txDesc = new MessageBox(txBox.x, txBox.y-txBox.height/2+100, 102, txBox.width, 60, transparentColor, color(255, 255, 255), "Transmission Steps:");
-    txDesc.fontSize = 15;
+    txDesc.fontSize = 17;
 
     // debugging color
     // color(255, 0, 160, 10)
     MessageBox txSteps = new MessageBox(txBox.x, txDesc.y+70, 103, txBox.width, 120, transparentColor, color(255, 255, 255), txStepsText);
-    txSteps.fontSize = 15;
+    txSteps.fontSize = 16;
     txSteps.xAlign = LEFT;
 
     SensorGauge distGauge = new SensorGauge(width/2, txSteps.y+txSteps.height+55, 104, 196, 90, "Signal Attenuator", "dB");
@@ -183,11 +197,11 @@ void openTransmission(Transmission t) {
     };
 
     MessageBox decodeDesc = new MessageBox(decodeBox.x, decodeBox.y-decodeBox.height/2+100, 302, decodeBox.width, 60, transparentColor, color(255, 255, 255), "Decoding Steps:");
-    decodeDesc.fontSize = 15;
+    decodeDesc.fontSize = 17;
 
     // debugging color
     MessageBox decodeSteps = new MessageBox(decodeBox.x, decodeDesc.y+70, 303, decodeBox.width, 120, transparentColor, color(255, 255, 255), decodeTxSteps);
-    decodeSteps.fontSize = 15;
+    decodeSteps.fontSize = 16;
     decodeSteps.xAlign = LEFT;
 
     SensorGauge distGauge = new SensorGauge(width/2, decodeSteps.y+decodeSteps.height+55, 304, 196, 90, "Signal Attenuator", "dB");
