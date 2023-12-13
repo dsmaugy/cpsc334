@@ -35,9 +35,9 @@ int currentPosY = 0;
 // this is a hack for getting .equals to work on Transmission objects in TreeSet
 int totalNumTransmissions = 0;
 
-final int TX_COOLDOWN = 5000; // TODO: should be >= 20000 for prod
+final int TX_COOLDOWN = 10000;
 int lastTx = 0;
-boolean readyToTransmit = false; // TODO: should be initialized to true for prod
+boolean readyToTransmit = true;
 
 // current transmission variables
 int buttonsVal = 0;

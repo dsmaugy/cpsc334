@@ -123,11 +123,8 @@ void drawTransmissionScreen() {
         transmissionList.add(txToSend);
         println("Transmission submitted!: " + txToSend.toString());
 
-        writeTxToCSV(txToSend);
-        printTxToReceipt(txToSend, false);
-
         drawnElements.clear();
-        drawTransmissionTransition();
+        drawTransmissionTransition(txToSend);
     };
     transmitButton.hoverAction = (b1) -> {
         b1.boxColor = accentOne;
@@ -150,7 +147,7 @@ void drawTransmissionScreen() {
     drawnElements.add(transmitButton);
 }
 
-void drawTransmissionTransition() {
+void drawTransmissionTransition(Transmission tx) {
 
     MessageBox loadingBox = new MessageBox(width/2, height/2, 200, 2*height/5, 2*height/5, txScreenColor, color(255, 255, 255), "Submitting Transmission");
     loadingBox.boxStroke = accentOne;
@@ -174,6 +171,9 @@ void drawTransmissionTransition() {
 
     LoadingAnimation dots = new LoadingAnimation(width/2, height/2, 201, 100, 20, 5000);    // TODO: change transmisison speed
     dots.onDone = (e) -> {
+        printTxToReceipt(txToSend, false);
+        writeTxToCSV(txToSend);
+        delay(1300);
         drawnElements.add(closeButton);
         lastTx = millis();
     };

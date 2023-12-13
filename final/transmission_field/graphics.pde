@@ -191,8 +191,7 @@ class MessageBoxAnimated extends MessageBox {
     char[] displayText;
     int currentVisibleIndex = 0;
 
-    // TODO: adjust timings for production
-    final int NEXT_LETTER_TIME = 10;
+    final int NEXT_LETTER_TIME = 30;
     final int LETTER_FLICKER_TIME = 5;
     int lastLetterTime = 0;
     int lastFlickerTime = 0;
