@@ -1,10 +1,26 @@
 import processing.javafx.*;
+import processing.serial.*;
 
 import java.util.TreeSet;
+import java.util.HashSet;
+
+String serialPort = "COM3";
+
+final char[] unicodeGroups = {'\u0400', '\u0590', '\u0600', '\u0980', '\u0A80', 
+'\u0B80', '\u0E80', '\u1400', '\u1780', '\u0400', '\u20A0', '\u20D0', 
+'\u2460', '\u2500', '\u2701', '\u2800', '\u31A0', '\u2190'};
+
+// transmission parameters
+final int MAX_FREQ = 200;
+final int MIN_FREQ = 1;
+final int MIN_DIST = 4;
+final int MAX_DIST = 30;
+final int MIN_ATTEN = -5;
+final int MAX_ATTEN = 5;
 
 // field/window size
-final int FIELD_WIDTH = 4000;
-final int FIELD_HEIGHT = 4000;
+final int FIELD_WIDTH = 6000;
+final int FIELD_HEIGHT = 6000;
 final int FIELD_SCROLL_BORDER = 30; // amount of pixels at the edge to begin scrolling
 final int SCROLL_SPEED_BASE = 10;
 int MAX_CENTER_X;
@@ -19,29 +35,39 @@ int currentPosY = 0;
 // this is a hack for getting .equals to work on Transmission objects in TreeSet
 int totalNumTransmissions = 0;
 
-final int TX_COOLDOWN = 5000; // should be >= 20000 for prod
+final int TX_COOLDOWN = 10000;
 int lastTx = 0;
-boolean readyToTransmit = false; // should be initialized to true for prod
+boolean readyToTransmit = true;
 
 // current transmission variables
 int buttonsVal = 0;
 int potVal = 0;
-int distVal = 0;
+float distVal = 0;
+Transmission txToSend;
+
 // transmission UI elements to update
-MessageBox activeTextField = null;
+TextEntryBox activeTextField = null;
+DecodeBox activeDecodeField = null;
+SensorGauge activeDistGauge = null;
+SensorGauge activePotGauge = null;
+ButtonCombo activeButtonCombo = null;
 
 Table txData;
 
 PImage bgImage;
 PFont startFont;
+PFont terminalFont;
 PShape gaugeSvg;
 
 // draw elements in order of Z value, if tie, place smaller elements on top
 TreeSet<UIElement> drawnElements = new TreeSet<>();
 ArrayList<Transmission> transmissionList = new ArrayList<>(); 
+HashSet<String> transmissionNames = new HashSet<>();
+
+Serial esp32;
 
 enum State {
-    INTRO, NAVIGATE, TRANSMIT;
+    INTRO, NAVIGATE, TRANSMIT, DECODE, DECODE_DONE;
 }
 
 State currentState = State.INTRO;
@@ -56,27 +82,44 @@ void setup() {
     imageMode(CENTER);
     bgImage = loadImage("resources/background.jpg");
     startFont = createFont("resources/PressStart2P-Regular.ttf", 32);
+    terminalFont = createFont("Lucida Console", 32, false);
+    // terminalFont = createFont("Bitstream Vera Sans", 32, true);
     gaugeSvg = loadShape("resources/gauge_2.svg");
 
     loadTxFromCSV();
     drawIntroScreen();
 
+    esp32 = new Serial(this, serialPort, 9600);
+    esp32.bufferUntil('\n');
+    // TODO: have an INTRO mode on esp32??
+    esp32.write("IDLE"); // explicitly start off in IDLE mode
+
     println(sketchPath());
-    
+    println(Serial.list());    
+    // println(PFont.list());
 }
 
 void draw() {
     // set background starfield in relation to larger canvas
-    image(bgImage, (width/2) + ((FIELD_WIDTH/2) - currentCenterX) , (height/2) + ((FIELD_HEIGHT/2) - currentCenterY));
+    image(bgImage, fieldToSketchX(currentCenterX) , fieldToSketchY(currentCenterY));
 
     // base UI drawing (don't include in drawnElements for efficiency)
     drawCoordinates();
     updateTxReady();
     
+    if (currentState == State.TRANSMIT || currentState == State.DECODE) {
+        updateSenorValues();
+    }
+
+    if (currentState == State.NAVIGATE) {
+        moveBackground();
+        currentPosX = sketchToFieldX(mouseX);
+        currentPosY = sketchToFieldY(mouseY);
+    }
+
     for (Transmission t : transmissionList) {
         if (t.transmissionVisible() && !drawnElements.contains(t)) {
             drawnElements.add(t);
-            
         } else if (drawnElements.contains(t) && !t.transmissionVisible()) { // smart short circuit for efficiency
             drawnElements.remove(t);
         }
@@ -84,67 +127,6 @@ void draw() {
 
     for (UIElement e : drawnElements) {
         e.drawElement();
-    }
-
-
-    if (currentState == State.NAVIGATE) {
-        moveBackground();
-        currentPosX = (mouseX - (width/2)) + currentCenterX;
-        currentPosY = (mouseY - (height/2)) + currentCenterY;
-    }
-}
-
-void mouseMoved() {
-    boolean onClickableElement = false;
-    boolean hoveredElementToggled = false; // so we don't double hover
-    
-    for (UIElement e : drawnElements.descendingSet()) {
-        if (e.pointInsideElement(mouseX, mouseY) && !hoveredElementToggled) {
-
-            if (e.isClickable) {
-                onClickableElement = true;
-            }
-
-            if (e.hoverJustEntered) {
-                e.onEnter();
-            }
-            e.onHover();
-            hoveredElementToggled = true;
-        } else if (e.hoverIn) {
-            e.onLeave();
-        }
-    }
-
-    if (onClickableElement) {
-        cursor(HAND);
-    } else {
-        cursor(ARROW);
-    }
-}
-
-void mousePressed() {
-    boolean clickedOnElement = false;
-    for (UIElement e : drawnElements.descendingSet()) {
-        if (e.pointInsideElement(mouseX, mouseY)) {
-            clickedOnElement = true;
-            e.onClick();
-            break;
-        }
-    }
-
-    if (!clickedOnElement && currentState == State.NAVIGATE) {
-        drawTransmissionScreen();
-    }
-}
-
-void keyTyped() {
-    if (currentState == State.TRANSMIT && activeTextField != null) {
-        if (key == BACKSPACE) {
-            if (activeTextField.text.length() > 0)
-                activeTextField.text = activeTextField.text.substring(0, activeTextField.text.length()-1); 
-        } else {
-            activeTextField.text += key;
-        }   
     }
 }
 
@@ -163,6 +145,7 @@ void moveBackground() {
 }
 
 void drawCoordinates() {
+    textFont(startFont);
     textSize(28);
     textAlign(LEFT, BASELINE);
     fill(255, 255, 255, 255);
@@ -170,9 +153,10 @@ void drawCoordinates() {
 }
 
 void updateTxReady() {
-    textSize(24);
     textAlign(RIGHT, BASELINE);
     fill(255, 255, 255, 255);
+    textFont(startFont);
+    textSize(24);
     text("Transmitter Status: ", width-textWidth("READY"), height-45);
 
     if (millis() - lastTx > TX_COOLDOWN) {
@@ -185,5 +169,17 @@ void updateTxReady() {
         text("Transmitter still cooling down...", width-5, height-5);
         fill(255, 0, 0, 255);   
         text("WAIT", width-5, height-45);
+    }
+}
+
+void updateSenorValues() {
+    activeDistGauge.setAngle(constrain(map(distVal, MIN_DIST, MAX_DIST, 180, 0), 0, 180));
+    activeDistGauge.setValue(getAttenuation(distVal));
+
+    activePotGauge.setAngle(min(map(potVal, 0, 4095, 0, 180), 180));
+    activePotGauge.setValue(getFrequency(potVal));
+
+    for (int i = 0; i < 3; i++) {
+        activeButtonCombo.setLight(i, getEncodingStatus(i, buttonsVal));  
     }
 }

@@ -1,6 +1,7 @@
 import java.util.LinkedList;
 import java.util.Arrays;
 import java.util.stream.Collectors;
+import java.util.ConcurrentModificationException;
 
 abstract class UIElement implements Comparable<UIElement> {
 
@@ -148,10 +149,18 @@ class MessageBox extends Box {
     }
 
     void drawText() {
-        fill(textColor);
-        textAlign(xAlign, yAlign);
-        textFont(textFont, fontSize);
-        text(text, x+leftMargin, y+topMargin, this.width-leftMargin, this.height-topMargin);
+        try {
+            fill(textColor);
+            textAlign(xAlign, yAlign);
+            textFont(textFont, fontSize);
+            text(text, x+leftMargin, y+topMargin, this.width-leftMargin, this.height-topMargin);
+        } catch (ConcurrentModificationException e) {
+            // no idea why this happens, but it's rare
+            // EDIT: version 21 of JAVAFX on linux seems to fix this 
+            // EDIT: nevermind
+            println("weird concurrent modification bug");
+        }
+
     }
 
     public void onClick() {
@@ -176,13 +185,141 @@ class MessageBox extends Box {
     }
 }
 
+class MessageBoxAnimated extends MessageBox {
+
+    char[] originalText;
+    char[] displayText;
+    int currentVisibleIndex = 0;
+
+    final int NEXT_LETTER_TIME = 30;
+    final int LETTER_FLICKER_TIME = 5;
+    int lastLetterTime = 0;
+    int lastFlickerTime = 0;
+
+    CallableAction<MessageBoxAnimated> onDone = null; 
+
+    public MessageBoxAnimated(int x, int y, int z, int width, int height, String text) {
+        super(x, y, z, width, height, color(10, 19, 10, 250), color(0, 255, 0), text);
+        originalText = Arrays.copyOf(text.toCharArray(), text.length());
+        displayText = new char[text.length()];
+        Arrays.fill(displayText, 'a');
+    }
+
+    @Override
+    public void drawElement() {
+        if (currentVisibleIndex < originalText.length) {
+            if (millis() - lastFlickerTime > LETTER_FLICKER_TIME) {
+                lastFlickerTime = millis();
+                displayText[currentVisibleIndex] = (char) random(97, 123);
+                text = new String(displayText, 0, currentVisibleIndex+1);
+            }
+
+            if (millis() - lastLetterTime > NEXT_LETTER_TIME) {
+                lastLetterTime = millis();
+                displayText[currentVisibleIndex] = originalText[currentVisibleIndex];
+                text = new String(displayText, 0, currentVisibleIndex+1);
+                currentVisibleIndex++;
+
+                if (currentVisibleIndex >= originalText.length && onDone != null) {
+                    onDone.doAction(this);
+                }
+            }
+        }
+        super.drawElement();
+    }
+}
+
+class DecodeBox extends MessageBox {
+
+    char[] originalText;
+    String originalTextString;
+    int currentAtten = 0;
+    int currentFreq = 0;
+    int currentButtonsCombo = 0;
+
+    int attenThresh = 0;
+    int freqThresh = 2;
+
+    boolean decodeMatch = false;
+
+    private Transmission tx;
+    private MessageBox captureButton;
+
+    public DecodeBox(int x, int y, int z, int width, int height, color boxColor, color textColor, Transmission tx, MessageBox captureButton) {
+        super(x, y, z, width, height, boxColor, textColor, tx.msg);
+        this.tx = tx;
+        this.captureButton = captureButton;
+
+        originalText = new char[tx.msg.length()];
+        for (int i = 0; i < tx.msg.length(); i++) {
+            originalText[i] = tx.msg.charAt(i);
+        }
+
+        originalTextString = new String(originalText);
+    }
+
+    public void shiftText() {
+        int atten = getAttenuation(distVal);
+        int freq = getFrequency(potVal);
+        // println("Atten: " + atten + " (" + distVal + ")" + " Freq: " + freq + " (" + potVal + ")");
+        if (currentAtten != atten || currentFreq != freq || currentButtonsCombo != buttonsVal) {
+            currentAtten = atten;
+            currentFreq = freq;
+            currentButtonsCombo = buttonsVal;
+            
+            // by default we're in an unsolved state
+            captureButton.isClickable = false;
+            captureButton.leaveAction.doAction(captureButton);
+            decodeMatch = false;
+
+            if (currentButtonsCombo != tx.buttonCombo) {
+                text = "";
+                return;
+            }
+
+            // println("Atten: " + atten + " (" + distVal + ")" + " Freq: " + freq + " (" + potVal + ")");
+            boolean attenMatch = abs(atten - getAttenuation(tx.txDist)) <= attenThresh ? true : false;
+            boolean freqMatch = abs(freq - getFrequency(tx.txPot)) <= freqThresh ? true : false;
+
+            if (attenMatch && freqMatch) {
+                text = originalTextString;
+                decodeMatch = true;
+                captureButton.isClickable = true;
+                captureButton.leaveAction.doAction(captureButton);
+                return;
+            } 
+
+            char[] shiftedText = new char[attenMatch ? originalText.length : min(originalText.length, 100)];
+            for (int i = 0; i < shiftedText.length; i++) {
+                int potShift = int(map(freq, MIN_FREQ, MAX_FREQ, 0, 127) + i);
+                
+                if (attenMatch) {
+                    shiftedText[i] = (char)(originalText[i] + potShift > 122 ? ((originalText[i] + potShift) % 58) + 65 : originalText[i] + potShift);
+                } else {
+                    int distGroupShift = abs((i + atten) % unicodeGroups.length);
+                    shiftedText[i] = (char)(originalText[i] + unicodeGroups[distGroupShift] + potShift);
+                }
+            }
+            
+            text = new String(shiftedText);
+        }
+    }
+
+
+    @Override
+    public void drawElement() {
+        shiftText();
+        super.drawElement();
+    }
+}
+
 class TextEntryBox extends MessageBox {
 
     boolean isCursorVisible = false;
     int cursorBlinkRate = 1000;
     int lastCursorBlink = 0;
 
-    LinkedList<Character> textEntry; 
+    LinkedList<Character> textEntry;
 
     public TextEntryBox(int x, int y, int z, int width, int height, color boxColor, color textColor, String text) {
         super(x, y, z, width, height, boxColor, textColor, text);
@@ -194,7 +331,6 @@ class TextEntryBox extends MessageBox {
 
     @Override
     public void drawElement() {
-        // TODO: blinking cursor
         if (millis() - lastCursorBlink > cursorBlinkRate) {
             lastCursorBlink = millis();
             if (isCursorVisible) {
@@ -206,7 +342,7 @@ class TextEntryBox extends MessageBox {
             }
         }
 
-        // Character[] chars = (Character[]) textEntry.toArray();
+
         text = textEntry.stream()
             .map(Object::toString)
             .collect(Collectors.joining());
@@ -214,15 +350,28 @@ class TextEntryBox extends MessageBox {
         super.drawElement();
     }
 
+    public String getText() {
+        if (isCursorVisible) {
+            textEntry.removeLast();
+            isCursorVisible = false;
+        }
+
+        return textEntry.stream()
+            .map(Object::toString)
+            .collect(Collectors.joining());
+    }
+
     public void addChar(char c) {
-        int lastCharIdx = isCursorVisible ? textEntry.size() - 2: textEntry.size() - 1;
+        int lastCharIdx = isCursorVisible ? textEntry.size() - 1: textEntry.size();
         textEntry.add(lastCharIdx, c);
     }
 
     public void removeChar() {
         int lastCharIdx = isCursorVisible ? textEntry.size() - 2: textEntry.size() - 1;
-        textEntry.remove(lastCharIdx);
+        if (lastCharIdx >= 0)
+            textEntry.remove(lastCharIdx);
     }
+    
 }
 
 class Transmission extends UIElement {
@@ -247,18 +396,38 @@ class Transmission extends UIElement {
 
     private String name;
 
+    String msg;
+    int buttonCombo, txPot;
+    float txDist;
+
     // takes in field coords instead of sketch coords
-    public Transmission(String name, int fieldX, int fieldY, int r) {
-        super(0, 0, totalNumTransmissions * -1, r*2, r*2); // placeholder x, y coords
+    public Transmission(String name, int fieldX, int fieldY, String msg, int buttonCombo, int txPot, float txDist) {
+        super(0, 0, totalNumTransmissions * -1, getTxRadius(msg)*2, getTxRadius(msg)*2); // placeholder x, y coords
         totalNumTransmissions++;
         this.fieldX = fieldX;
         this.fieldY = fieldY;
-        this.r = r;
+        this.r = getTxRadius(msg);
         this.name = name;
         isClickable = true;
 
+        this.msg = msg;
+        this.buttonCombo = buttonCombo;
+        this.txPot = txPot;
+        this.txDist = txDist;
+
+        calcNumRings();
+    }
+
+    public void updateMsg(String msg) {
+        this.msg = msg;
+        this.r = getTxRadius(msg);
+        this.boundingWidth = this.boundingHeight = r*2;
+        calcNumRings();
+    }
+
+    private void calcNumRings() {
         // radius divided by the radius difference for each ring
-        maxNumRings = r / 10;
+        maxNumRings = (r+5) / 10;
         currentRingGlow = int(random(0, maxNumRings+1));
     }
 
@@ -271,6 +440,12 @@ class Transmission extends UIElement {
     public boolean pointInsideElement(int x, int y) {
         return (x >= this.x-r && x <= this.x+r
         && y >= this.y-r && y <= this.y+r);
+    }
+
+    @Override
+    public void onClick() {
+        super.onClick();
+        openTransmission(this);
     }
 
     @Override
@@ -323,7 +498,7 @@ class Transmission extends UIElement {
 
     @Override
     public String toString() {
-        return name + ": (" + fieldX + "," + fieldY + ")";
+        return name + ": (" + fieldX + "," + fieldY + ") -> r: " + r;
     }
 
     // need to override this to make sure we draw smaller transmissions on top 
@@ -341,7 +516,7 @@ class Transmission extends UIElement {
 }
 
 class SensorGauge extends UIElement {
-    float desiredAngle = 180;
+    float desiredAngle = 0;
     private float currentAngle = 0;
     private int lastTickerMove = 0;
     private int tickerCooldown = 5;
@@ -391,4 +566,108 @@ class SensorGauge extends UIElement {
     public void setAngle(float degrees) {
         desiredAngle = degrees;
     }
+
+    public void setValue(int sensorValue) {
+        this.sensorValue = sensorValue;
+    }
+}
+
+class ButtonCombo extends UIElement {
+
+    int circleSpacing;
+    boolean[] lightOn = {false, false, false};
+
+    color colorOff = color(0, 100, 100);
+    color colorOn = color(0, 255, 100);
+
+    public ButtonCombo(int x, int y, int z, int boundingWidth, int boundingHeight) {
+        super(x, y, z, boundingWidth, boundingHeight);
+        circleSpacing = boundingWidth/4;
+    }   
+
+    @Override
+    public void drawElement() {
+        ellipseMode(CENTER);
+        noStroke();
+        for (int i=0; i<3; i++) {
+            if (lightOn[i]) {
+                fill(colorOn);
+            } else {
+                fill(colorOff);
+            }
+            circle(x-circleSpacing + (i*circleSpacing), y, boundingHeight);
+        }
+        
+        fill(255, 255, 255);
+        textAlign(CENTER, BASELINE);
+        textFont(startFont, 18);
+        text("Encoding Method", x, y - boundingHeight + 10);
+    }
+
+    public void setLight(int lightIdx, boolean val) {
+        lightOn[lightIdx] = val;
+    }
+    
+}
+
+class LoadingAnimation extends ButtonCombo {
+
+    int currentOnButton = 0;
+    int lastButtonTransition = 0;
+    final int ANIMATION_SPEED = 800;
+    boolean isLoadingDone = false;
+    int loadLength;
+    int loadStart;
+
+    color colorOff = color(54, 63, 64);
+    color colorOn = color(107, 214, 219);
+
+    CallableAction<LoadingAnimation> onDone = null;
+    String doneText = "TRANSMISSION DONE";
+
+    public LoadingAnimation(int x, int y, int z, int boundingWidth, int boundingHeight, int loadLength) {
+        super(x, y, z, boundingWidth, boundingHeight);
+        this.loadLength = loadLength;
+        loadStart = millis();
+    }
+
+    @Override
+    public void drawElement() {
+        if (isLoadingDone) {
+            fill(0, 255, 0);
+            textAlign(CENTER, BASELINE);
+            textFont(startFont, 24);
+            text(doneText, x, y);
+        } else {
+            ellipseMode(CENTER);
+            noStroke();
+            for (int i=0; i<3; i++) {
+                if (lightOn[i]) {
+                    fill(colorOn);
+                } else {
+                    fill(colorOff);
+                }
+                circle(x-circleSpacing + (i*circleSpacing), y, boundingHeight);
+            }
+
+            if (millis() - lastButtonTransition > ANIMATION_SPEED) {
+                lightOn[currentOnButton] = false;
+                currentOnButton = (currentOnButton+1) % 3;
+                lightOn[currentOnButton] = true;
+                lastButtonTransition = millis();
+            }
+
+            if (millis() - loadStart > loadLength)
+                finishLoading();        
+        }
+    }
+
+    private void finishLoading() {
+        if (onDone != null) {
+            onDone.doAction(this);
+        }
+
+        isLoadingDone = true;
+    }
+
 }
