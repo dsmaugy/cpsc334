@@ -7,5 +7,9 @@ Final project for CPSC334.
 ## Files
 `background_generator/` - Processing program to generate the static NxN starfield. Uses Perlin noise to generate "nebulas" and weighted randomness to generate stars, with a higher chance for stars in nebula regions.
 `transmission_device/` - ESP32 code for the transmission device. 
+`transmission_field/scripts/print_receipt.py` - Python script for printing to receipt printer.
+`transmission_field/*.pde` - Processing interface to interact with starfield and send/decode messages.
 
+All messages with their corresponding encoding values are stored in `transmission_field/resources/transmissions.csv`
+The python-escpos library is needed to print from the receipt printer.
 
